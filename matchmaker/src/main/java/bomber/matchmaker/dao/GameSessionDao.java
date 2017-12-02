@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GameSessionDao extends CrudRepository<GameSession, Integer> {
+    GameSession getByGameId(Integer gameId);
 }

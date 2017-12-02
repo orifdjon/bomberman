@@ -1,9 +1,10 @@
-.gradle/
-/gradle/
-/out/
-build/
+.gradle/**
+/gradle/**
+/out/**
+build/**
+*.gradle
 
-.idea/
-/*/build/
+.idea/**
+/*/build/**
 /*/classes
 /classes

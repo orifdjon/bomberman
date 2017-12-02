@@ -21,6 +21,7 @@ import static java.lang.Thread.sleep;
 public class EventHandler extends TextWebSocketHandler {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(EventHandler.class);
+    public static final int CONNECTION_TIMEOUT = 300;
     List<WebSocketSession> peers = new ArrayList<>();
 
 
@@ -29,8 +30,9 @@ public class EventHandler extends TextWebSocketHandler {
         super.afterConnectionEstablished(session);
         log.info("WebSocket connection established - " + session);
         GameController.setConnectedPlayerCount(GameController.getConnectedPlayerCount() + 1);
-        log.info("Prolonging WS connection for 60 SEC for player #" + GameController.getConnectedPlayerCount());
-        sleep(TimeUnit.SECONDS.toMillis(300));
+        log.info("Prolonging WS connection for {} SEC for player {}",
+                CONNECTION_TIMEOUT, GameController.getConnectedPlayerCount());
+        sleep(TimeUnit.SECONDS.toMillis(CONNECTION_TIMEOUT));
         log.info("Closing connection for player #" + "asd");
         peers.add(session);
         //session.close(); попробовать тест когда подключения не закрываются

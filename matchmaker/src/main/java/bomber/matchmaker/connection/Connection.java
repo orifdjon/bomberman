@@ -3,15 +3,15 @@ package bomber.matchmaker.connection;
 
 public class Connection {
 
-    private final long playerId;
+    private final Integer playerId;
     private final String name;
 
-    public Connection(long playerId, String name) {
+    public Connection(Integer playerId, String name) {
         this.playerId = playerId;
         this.name = name;
     }
 
-    public long getPlayerId() {
+    public Integer getPlayerId() {
         return playerId;
     }
 

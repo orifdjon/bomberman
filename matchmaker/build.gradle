@@ -2,7 +2,7 @@ dependencies {
 	compile rootProject.libraries.spring_boot
 	compile rootProject.libraries.spring_boot_websocket
 	compile rootProject.libraries.spring_boot_jpa
-
+	/*compile project(':gameserver')*/
 
 	compile rootProject.libraries.okhttp
 
@@ -16,10 +16,6 @@ dependencies {
 
 configurations {
 	compile.exclude group:'ch.qos.logback'
-}
-
-springBoot {
-	mainClass = 'bomber.matchmaker.MatchMakerApplication.java'
 }
 
 

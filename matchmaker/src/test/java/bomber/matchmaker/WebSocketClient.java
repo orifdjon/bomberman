@@ -1,5 +1,7 @@
-package bomber.gameserver.websocket;
+/*package bomber.matchmaker;
 
+
+import bomber.gameserver.websocket.EventHandler;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
@@ -9,10 +11,10 @@ public class WebSocketClient {
     private static final String name = "c";
 
     public static void main(String[] args) {
-        webSocketTestConnection();
+        WebSocketTestConnection();
     }
 
-    public static void webSocketTestConnection() {
+    public static void WebSocketTestConnection() {
         // connection url
         String uri = "ws://localhost:8090/game/connect?gameId=" + 42 + "&name=" + name;
 
@@ -25,4 +27,4 @@ public class WebSocketClient {
             log.info("failed to do a handshake");
         }
     }
-}
+}*/
