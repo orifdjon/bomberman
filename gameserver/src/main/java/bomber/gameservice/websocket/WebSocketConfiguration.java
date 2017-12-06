@@ -1,4 +1,4 @@
-package bomber.gameserver.websocket;
+package bomber.gameservice.websocket;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;

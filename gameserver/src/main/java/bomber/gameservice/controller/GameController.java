@@ -1,4 +1,4 @@
-package bomber.gameserver.controller;
+package bomber.gameservice.controller;
 
 
 import org.slf4j.LoggerFactory;

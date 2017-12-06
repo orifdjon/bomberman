@@ -1,4 +1,4 @@
-package bomber.gameserver;
+package bomber.gameservice;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

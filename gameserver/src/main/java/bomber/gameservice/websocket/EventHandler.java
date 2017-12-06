@@ -1,6 +1,6 @@
-package bomber.gameserver.websocket;
+package bomber.gameservice.websocket;
 
-import bomber.gameserver.controller.GameController;
+import bomber.gameservice.controller.GameController;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
