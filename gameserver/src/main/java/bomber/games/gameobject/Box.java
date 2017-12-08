@@ -6,7 +6,7 @@ import bomber.games.geometry.Point;
 import bomber.games.model.Positionable;
 import org.slf4j.LoggerFactory;
 
-public final class Box implements Positionable {
+public final class  Box implements Positionable {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Box.class);
     private final Point position;
     private boolean exist;
