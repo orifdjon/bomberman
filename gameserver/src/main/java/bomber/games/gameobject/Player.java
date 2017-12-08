@@ -70,6 +70,38 @@ public final class Player implements Movable {
         return position;
     }
 
+    public void setPosition(Point position) {
+        this.position = position;
+    }
+
+    public int getCountBomb() {
+        return countBomb;
+    }
+
+    public int getVelocity() {
+        return velocity;
+    }
+
+    public long getLifeTime() {
+        return lifeTime;
+    }
+
+    public void setCountBomb(int countBomb) {
+        this.countBomb = countBomb;
+    }
+
+    public void setLifeTime(long lifeTime) {
+        this.lifeTime = lifeTime;
+    }
+
+    public void setRangeExplosion(int rangeExplosion) {
+        this.rangeExplosion = rangeExplosion;
+    }
+
+    public void setVelocity(int velocity) {
+        this.velocity = velocity;
+    }
+
     @Override
     public void tick(long elapsed) {
         lifeTime += elapsed;

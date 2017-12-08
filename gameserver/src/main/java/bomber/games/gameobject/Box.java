@@ -12,9 +12,8 @@ public final class Box implements Positionable {
     private boolean exist;
     private final int id=0;
 
-    public Box(final Point position, boolean exist) {
+    public Box(final Point position) {
         this.position = position;
-        this.exist = exist;
         log.info("New Box: id={},  id={}, position({}, {})\n", position.getX(), position.getY());
     }
 
@@ -22,10 +21,6 @@ public final class Box implements Positionable {
     @Override
     public Point getPosition() {
         return position;
-    }
-
-    public boolean isExist() {
-        return exist;
     }
 
     @Override

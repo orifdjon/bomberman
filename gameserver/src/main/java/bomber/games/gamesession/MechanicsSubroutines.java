@@ -50,7 +50,7 @@ public class MechanicsSubroutines {
         return !check.contains(false); //если хотя бы одна проверка провалилась, то проверку на коллизии сущность не прошла
     }
 
-    public boolean bonusCheck(Player currentPlayer, Replica replica) {
+    public Integer bonusCheck(Player currentPlayer, Replica replica) {
 
         Map<Integer, Bonus> bonuses = replica.getBonusOnMap();
         int playerId = currentPlayer.getId();
@@ -59,12 +59,12 @@ public class MechanicsSubroutines {
 
         bonuses.forEach((key,bonus)-> {
             if (bonuses.get(key).getPosition().isColliding(playerPosition)) { //Столкновение с бонусом
-                check.add(true);
+                check.add(true); //есть столкновение
             } else {
                 check.add(false);
             }
         });
-        return check.contains(true);
+        return check.indexOf(true); //возвращаем id бонуса, с которым столкнулся игрок
         //Написан по такому же принципу, что и проверка коллизий, поэтому сильно комментить я его не стал
     }
 

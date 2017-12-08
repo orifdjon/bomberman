@@ -1,4 +1,4 @@
-package tick;
+package bomber.games.tick;
 
 
 import bomber.games.model.Tickable;

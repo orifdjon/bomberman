@@ -4,6 +4,8 @@ import bomber.games.gameobject.*;
 import bomber.games.geometry.Point;
 import bomber.games.model.GameObject;
 import bomber.games.model.Movable;
+import bomber.games.tick.Ticker;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,11 +19,11 @@ public class GameMechanics {
     Replicator replicator = new Replicator();
     ConcurrentLinkedQueue<PlayerAction> eventQueue = new ConcurrentLinkedQueue();
 
-    private Map<Integer,Player> playersOnMap = new HashMap<>();
-    private Map<Integer,GameObject> bricksOnMap = new HashMap<>();
-    private Map<Integer,Bomb> bombsOnMap = new HashMap<>();
-    private Map<Integer,Bonus> bonusOnMap = new HashMap<>();
-    private Map<Integer,PlayerAction> actionOnMap = new HashMap<>();
+    private Map<Integer, Player> playersOnMap = new HashMap<>();
+    private Map<Integer, GameObject> bricksOnMap = new HashMap<>();
+    private Map<Integer, Bomb> bombsOnMap = new HashMap<>();
+    private Map<Integer, Bonus> bonusOnMap = new HashMap<>();
+    private Map<Integer, PlayerAction> actionOnMap = new HashMap<>();
 
 
     //В оригинальной версии поле 16*16
@@ -30,20 +32,20 @@ public class GameMechanics {
     final int brickSize = 0;//в будущем, когда будет накладываться на это дело фронтенд, это пригодится
     final int bonusCount = 4;//3*Количество бонусов, которые отспаунятся
 
-    public ArrayList<GameObject> setupGame() {
+    public Replica setupGame() {
 
 
         //заполним objectsOnMap
-        objectsOnMap.add(new PlayGround(new Point(0, 0)));//для механики бесполезно, а фронтенду необходимо
+        bricksOnMap.put(0, new PlayGround(new Point(0, 0)));//для механики бесполезно, а фронтенду необходимо
 
                     /*
                     Площадкамана построили, насяльника, можно заселять игроков
                     */
-
-        objectsOnMap.add(new Player(new Point(1, 1)));//Первый игрок, id = 1
-        objectsOnMap.add(new Player(new Point(gameZone, 1)));//Второй игрок, id = 2
-        objectsOnMap.add(new Player(new Point(1, gameZone)));//Третий игрок, id = 3
-        objectsOnMap.add(new Player(new Point(gameZone, gameZone)));//Четвертый игрок, id = 4
+        playersOnMap.put(1,new Player(new Point(1, 1)));//Первый игрок, id = 1
+        playersOnMap.put(2,new Player(new Point(gameZone, 1)));//Второй игрок, id = 2
+        playersOnMap.put(3,new Player(new Point(1, gameZone)));//Третий игрок, id = 3
+        playersOnMap.put(4,new Player(new Point(gameZone, gameZone)));//Четвертый игрок, id = 4
+        //надо обсудить что тут делать, если игроков придет меньше
 
 
         //Заполним Box и Wall
@@ -55,9 +57,9 @@ public class GameMechanics {
                     четная i и четная j заполняется Wall, остальное Box
                     */
                 if ((i % 2 == 0) && (j % 2 == 0)) {
-                    objectsOnMap.add(new Wall(new Point(i, j)));
+                    bricksOnMap.put(i*j,new Wall(new Point(i, j)));
                 } else {
-                    objectsOnMap.add(new Box(new Point(i, j), true));
+                    bricksOnMap.put(i*j,new Box(new Point(i, j)));
                 }
             }
         }
@@ -67,24 +69,21 @@ public class GameMechanics {
                     */
 
         //Для первого игрока(Вверх-Влево)
-        objectsOnMap.set(1, new Box(new Point(1, 1), false));
-        objectsOnMap.set(2, new Box(new Point(2, 1), false));
-        objectsOnMap.set(gameZone + 1, new Box(new Point(1, 2), false));
+        bricksOnMap.remove(1);
+        bricksOnMap.remove(2);
+        bricksOnMap.remove(gameZone + 1);
         //Для второго игрока(Вверх-Вправо)
-        objectsOnMap.set(gameZone, new Box(new Point(gameZone, 1), false));
-        objectsOnMap.set(gameZone - 1, new Box(new Point(gameZone - 1, 1), false));
-        objectsOnMap.set(2 * gameZone, new Box(new Point(gameZone, 2), false));
+        bricksOnMap.remove(gameZone);
+        bricksOnMap.remove(gameZone - 1);
+        bricksOnMap.remove(2 * gameZone);
         //Для третьего игрока(Вниз-Влево)
-        int curId = gameZone * (gameZone - 1);
-        objectsOnMap.set(curId, new Box(new Point(1, gameZone), false));
-        objectsOnMap.set(curId + 1, new Box(new Point(2, gameZone), false));
-        objectsOnMap.set(curId - gameZone, new Box(new Point(1, gameZone - 1), false));
-
+        bricksOnMap.remove(gameZone * (gameZone - 1));
+        bricksOnMap.remove(gameZone * (gameZone - 1) + 1);
+        bricksOnMap.remove(gameZone * (gameZone - 1) - gameZone);
         //Для четвертого игрока(Вниз-Влево)
-        curId = gameZone * gameZone;
-        objectsOnMap.set(curId, new Box(new Point(gameZone, gameZone), false));
-        objectsOnMap.set(curId - 1, new Box(new Point(gameZone - 1, gameZone), false));
-        objectsOnMap.set(curId - gameZone, new Box(new Point(gameZone - 1, gameZone), false));
+        bricksOnMap.remove(gameZone * gameZone);
+        bricksOnMap.remove(gameZone * gameZone - 1);
+        bricksOnMap.remove(gameZone * gameZone - gameZone);
 
 
                     /*
@@ -94,20 +93,20 @@ public class GameMechanics {
         Random rand = new Random();//Рандомная координата выпадающего бонуса (но в пределах gameZone)
         for (int i = 0; i <= bonusCount; i++) {
 
-            bonusOnMap.add(new Bonus(new Point(rand.nextInt(gameZone - 1) + 1,
+            bonusOnMap.put( i, new Bonus(new Point(rand.nextInt(gameZone - 1) + 1,
                     rand.nextInt(gameZone - 1) + 1), Bonus.Type.SPEED, false, true));
         }
 
         for (int i = 0; i <= bonusCount; i++) {
-            bonusOnMap.add(new Bonus(new Point((rand.nextInt(gameZone - 1) + 1),
+            bonusOnMap.put( i, new Bonus(new Point((rand.nextInt(gameZone - 1) + 1),
                     (rand.nextInt(gameZone - 1) + 1)), Bonus.Type.BOMB, false, true));
         }
 
         for (int i = 0; i <= bonusCount; i++) {
-            bonusOnMap.add(new Bonus(new Point((rand.nextInt(gameZone - 1) + 1),
+            bonusOnMap.put( i, new Bonus(new Point((rand.nextInt(gameZone - 1) + 1),
                     (rand.nextInt(gameZone - 1) + 1)), Bonus.Type.RANGE, false, true));
         }
-        return objectsOnMap;
+        return new Replica( playersOnMap, bricksOnMap, bombsOnMap, bonusOnMap);
     }
 
     public void readInputQueue() {
@@ -125,70 +124,68 @@ public class GameMechanics {
         eventQueue.clear();
     }
 
-    public ArrayList<GameObject> doMechanic() {
+    public Replica doMechanic(Replica replica, Ticker tick) {
 
-        for (int i = 0; i <= playersCount; i++) { //Переходим от Action к Player_position or Bomb_position
+
+        for (int i = 0; i <= playersCount; i++) {
+            Player currentPlayer = playersOnMap.get(i);//выцепили нужного игрока из списка
+            MechanicsSubroutines mechanicsSubroutines = new MechanicsSubroutines();//подняли вспомогательные методы
+
+            /*
+            Сначала разберемся с перемещениями
+            Переходим от Action к Player_position or Bomb_position
+            */
+
             switch (actionOnMap.get(i).getType()) { //либо шагает Up,Down,Right,Left, либо ставит бомбу Bomb
 
-                case Up: //если идет вверх то заменяем игрока новым с координатами, к которым он прошагал за move
-                    //Согласно Action, определяем новые координаты для игрока с id = i
-                    Player currentPlayer = new Player(playersOnMap.get(i).move(Movable.Direction.UP, 10L));
-                    //Далее проверяем на коллизии с объектами Bomb, Bonus и Box(Wall)
+                case Up: //если идет вверх
+                    currentPlayer.setPosition(currentPlayer.move(Movable.Direction.UP, tick));//задали новые координаты
 
+                    if (mechanicsSubroutines.collisionCheck(currentPlayer, replica)) {//Если никуда не врезается, то
+                        playersOnMap.replace(i, currentPlayer);//перемещаем игрока
+                    }
+                    //Если проверку не прошла, то все остается по старому
                     break;
 
-                case Down://вместо 10l надо вставить tick
-                    currentPlayer = (Player) objectsOnMap.get(playerId);
-                    playersOnMap.add(playerId, new Player(currentPlayer.move(Movable.Direction.DOWN, 10L)));
-                    break;
+                case Down:
+                    currentPlayer.setPosition(currentPlayer.move(Movable.Direction.DOWN, tick));
 
+                    if (mechanicsSubroutines.collisionCheck(currentPlayer, replica)) {
+                        playersOnMap.replace(i, currentPlayer);
+                    }
+
+                    break;
                 case Left:
-                    currentPlayer = (Player) objectsOnMap.get(playerId);
-                    playersOnMap.add(playerId, new Player(currentPlayer.move(Movable.Direction.LEFT, 10L)));
-                    break;
+                    currentPlayer.setPosition(currentPlayer.move(Movable.Direction.LEFT, tick));
 
+                    if (mechanicsSubroutines.collisionCheck(currentPlayer, replica)) {
+                        playersOnMap.replace(i, currentPlayer);
+                    }
+
+                    break;
                 case Right:
-                    currentPlayer = (Player) objectsOnMap.get(playerId);
-                    playersOnMap.add(playerId, new Player(currentPlayer.move(Movable.Direction.RIGHT, 10L)));
-                    break;
+                    currentPlayer.setPosition(currentPlayer.move(Movable.Direction.RIGHT, tick));
 
+                    if (mechanicsSubroutines.collisionCheck(currentPlayer, replica)) {
+                        playersOnMap.replace(i, currentPlayer);
+                    }
+
+                    break;
                 case Bomb:
-                    currentPlayer = (Player) objectsOnMap.get(playerId);
-
-                    playersOnMap.add(playerId, new Player(currentPlayer.move(Movable.Direction.IDLE, 10L)));
-                    bombOnMap.add(playerId, new Bomb(currentPlayer.getPosition()));
-                    break;
+                    //Тут особый случай
 
                 default:
                     break;
             }
 
-        }
 
+            if (!(mechanicsSubroutines.bonusCheck(currentPlayer, replica) == null)) { //если был взят бонус
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        //Сначала разберемся с перемещениями
-        for (GameObject list : objectsOnMap) {
-            for (GameObject player : playersOnMap) {
-
-                if (!list.getPosition().isColliding(player.getPosition())) {//если перемещение не сквозь стену, то
-                    objectsOnMap.set(player.getId(), new Player(player.getPosition()));//Переместить игрока
-                }
             }
+
+
         }
+
 
         //Вдруг взяли бонус?
 
@@ -199,19 +196,6 @@ public class GameMechanics {
         //Вдруг у кого то game over?
 
 
-
-
-
-
-
-        /*
-     Прежде чем писать механику, надо бы определиться как вообще описывать объекты
-     (аля Brick содержит поля coord и exist?(bool))
-     Player содержит coord
-     Bomb содержит coord и countdown
-     Bonus предлагаю давать рандомные координаты по полю (и ставить условие, что если бонус на неразрушаемой стене,
-     то прогнать алгоритм еще раз)
-     */
         playersOnMap.clear();
         bombOnMap.clear();
         return mechanic;
