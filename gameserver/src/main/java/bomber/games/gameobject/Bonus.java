@@ -8,12 +8,12 @@ public final class Bonus implements Positionable {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Bonus.class);
     private final long id;
     private final Point position;
-    private final Type type;
     private boolean show;
     private boolean exist;
+    private final Type type;
 
     public enum Type {
-        SPEED, BOMB, RANGE
+        BONUS_SPEED, BONUS_BOMB, BONUS_RANGE
     }
 
     public Bonus(final long id, final Point position, final Type type, final boolean show, final boolean exist) {

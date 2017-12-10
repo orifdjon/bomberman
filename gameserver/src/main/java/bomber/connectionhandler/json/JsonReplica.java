@@ -3,7 +3,6 @@ package bomber.connectionhandler.json;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 
-import java.net.URI;
 
 public class JsonReplica {
 
@@ -21,7 +20,7 @@ public class JsonReplica {
     public DataReplica getData() {
         return data;
     }
-
+    
     public void setData(DataReplica data) {
         this.data = data;
     }

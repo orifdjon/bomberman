@@ -1,20 +1,24 @@
 package bomber.connectionhandler.json;
 
+import bomber.connectionhandler.PlayerAction;
+
 public class DataHandleInputJson {
-    String direction;
+    PlayerAction.EventType eventType;
 
     public DataHandleInputJson() {
     }
 
-    public DataHandleInputJson(String direction) {
-        this.direction = direction;
+    public DataHandleInputJson(PlayerAction.EventType eventType) {
+        this.eventType = eventType;
     }
 
-    public String getDirection() {
-        return direction;
+    public PlayerAction.EventType getEventType() {
+        return eventType;
     }
 
-    public void setDirection(String direction) {
-        this.direction = direction;
+    public void setEventType(PlayerAction.EventType eventType) {
+        this.eventType = eventType;
     }
+
+
 }

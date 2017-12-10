@@ -2,7 +2,9 @@ package bomber.connectionhandler.json;
 
 public class Possess {
 
-    private Topic topic = Topic.POSSESS;
+
+    private final Topic topic = Topic.POSSESS;
+
     private Integer data;
 
     public Possess() {

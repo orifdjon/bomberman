@@ -4,13 +4,16 @@ package bomber.games.gameobject;
 import bomber.games.gamesession.GameSession;
 import bomber.games.geometry.Point;
 import bomber.games.model.Positionable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.slf4j.LoggerFactory;
 
 public final class  Box implements Positionable {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Box.class);
     private final Point position;
-    private boolean exist;
     private final long id;
+    private final String type = "Box";
+    @JsonIgnore
+    private boolean exist;
 
     public Box(final long id, final Point position, boolean exist) {
         this.id = id;

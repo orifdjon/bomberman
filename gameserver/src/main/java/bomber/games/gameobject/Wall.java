@@ -8,8 +8,10 @@ import org.slf4j.LoggerFactory;
 public final class Wall implements Positionable {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Wall.class);
 
-    private final long id;
+
     private final Point position;
+    private final long id;
+    private final String type = "Wall";
 
     public Wall(final long id, final Point position) {
         this.id = id;

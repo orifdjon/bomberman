@@ -5,9 +5,11 @@ import bomber.games.model.GameObject;
 import bomber.games.util.JsonHelper;
 import bomber.gameservice.controller.GameController;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -35,31 +37,74 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
     }
 
     @Override
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+
+    }
+
+    @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         GameController.setConnectedPlayerCount(GameController.getConnectedPlayerCount() - 1);
         log.info("Socket Closed: [" + closeStatus.getCode() + "] " + closeStatus.getReason());
         super.afterConnectionClosed(session, closeStatus);
     }
 
-    public static HandleInputJson handleMoveAndPlanBomb(@NotNull String json) { // из json делат объект
-        return JsonHelper.fromJson(json, HandleInputJson.class);
+
+
+
+    public static PlayerAction handleMoveAndPlanBombFromJson(@NotNull String json) { // из json делает объект
+        HandleInputJson handleInputJson = JsonHelper.fromJson(json, HandleInputJson.class);
+        PlayerAction playerAction = convertToPlayerAction(handleInputJson);
+        if (playerAction == null) {
+            throw new NullPointerException("Мы не смогли конверитировать json в playerAction");
+        } else {
+            return playerAction;
+        }
 
     }
 
-    public static String handlePossess(@NotNull Integer data) { // возврщает json
+    @NotNull
+    public static String handlePossessToJson(@NotNull final Integer data) { // возврщает json
         Possess possess = new Possess();
         possess.setData(data);
-        String json = JsonHelper.toJson(possess);
-        return json;
+        return JsonHelper.toJson(possess);
     }
 
 
+<<<<<<< HEAD
     public static String handleReplica(@NotNull JsonReplica jsonReplica, @NotNull List<? extends GameObject> list) {
         DataReplica dataReplica = jsonReplica.getData();
         dataReplica.setObjects(list);
         String json = JsonHelper.toJson(jsonReplica);
-        return json;
+=======
+    @NotNull
+    public static String handleReplica(@NotNull final Replica replica, @NotNull final List<? extends GameObject> list) {
+        DataReplica dataReplica = replica.getData();
+        dataReplica.setObjects(list);
+        return JsonHelper.toJson(replica);
     }
+
+    @Nullable
+    private static PlayerAction convertToPlayerAction(@NotNull HandleInputJson handleInputJson) {
+        PlayerAction playerAction = new PlayerAction();
+        if (handleInputJson.getTopic() == Topic.MOVE) {
+            playerAction.setType(handleInputJson.getData().getEventType());
+            return playerAction;
+        }
+        if (handleInputJson.getTopic() == Topic.PLANT_BOMB) {
+            playerAction.setType(PlayerAction.EventType.BOMB);
+            return playerAction;
+        }
+        return null;
+    }
+   /* public static String handleReplica(@NotNull Replica replica, @NotNull List<? extends GameObject> list,
+                                       Map<? extends GameObject, ? extends GameObject> map) {
+        DataReplica dataReplica = replica.getData();
+        dataReplica.setObjects(list);
+        dataReplica.setExampleEEE(map);
+        String json = JsonHelper.toJson(replica);
+>>>>>>> c7933a5fb881bc33eef41bbbbb09be0c2d1e1ec1
+        return json;
+    }*/
 
 
 

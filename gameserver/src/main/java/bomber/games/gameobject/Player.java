@@ -9,12 +9,15 @@ import org.slf4j.LoggerFactory;
 public final class Player implements Movable {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Player.class);
 
-    private final long id;
+
     private Point position;
+    private final long id;
     private long lifeTime;
     private int velocity;
     private int explosionRange;
     private int bombCount;
+
+    private final String type = "Pawn";
 
 
     public Player(final long id, final Point position) {

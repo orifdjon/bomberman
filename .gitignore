@@ -8,3 +8,9 @@ build/**
 /*/build/**
 /*/classes
 /classes
+/gameserver/out/
+gameserver/out/production/classes/bomber/connectionhandler/
+gameserver/out/production/classes/bomber/games/
+gameserver/out/production/classes/bomber/gameservice/
+gameserver/out/production/classes/tick/
+gameserver/out/test/

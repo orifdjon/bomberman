@@ -11,10 +11,12 @@ public final class Bomb implements Tickable, Positionable {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Bomb.class);
     private static final long LIFE_TIME = 2500; //after pass death
 
-    private final long id;
-    private long lifeTime = 0;
-    private int rangeExplosion;
     private final Point position;
+    private final long id;
+    private long lifeTime;
+    private int rangeExplosion;
+    private final String type = "Bomb";
+
 
     public Bomb(long id, final Point position) {
         this.id = id;

@@ -6,10 +6,13 @@ public class PlayerAction {
     private EventType type;
 
     public enum EventType {
-        Up, Right, Left, Down, Bomb
+        UP, DOWN, RIGHT, LEFT, BOMB
     }
 
-    public PlayerAction(Integer id, EventType type) {
+    public PlayerAction() {
+    }
+
+    public PlayerAction(final Integer id, final EventType type) {
         this.id = id;//Player id
         this.type = type;//U,R,L,D for MOVE, B for Bomb plant
 
@@ -23,9 +26,12 @@ public class PlayerAction {
         return type;
     }
 
-    @Override
-    public String toString() {
-        return "id = " + id + "type = " + type;
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public void setType(EventType type) {
+        this.type = type;
     }
 
     @Override
@@ -39,5 +45,13 @@ public class PlayerAction {
             }
             return false;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "{PlayerAction: {" +
+                "\nid = " + id + "" +
+                "\ntype = " + type +
+                "\n}";
     }
 }

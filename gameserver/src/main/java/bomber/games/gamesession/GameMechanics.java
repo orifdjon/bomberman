@@ -141,30 +141,30 @@ public class GameMechanics {
 
                 case Up: //если идет вверх то заменяем игрока новым с координатами, к которым он прошагал за move
                     //Согласно Action, определяем новые координаты для игрока с id = i
-                    Player currentPlayer = new Player(playersOnMap.get(i).move(Movable.Direction.UP, 10L));
+                    Player currentPlayer = new Player(playersOnMap.get(i).move(Movable.EventType.UP, 10L));
                     //Далее проверяем на коллизии с объектами Bomb, Bonus и Box(Wall)
 
                     break;
 
                 case Down://вместо 10l надо вставить tick
                     currentPlayer = (Player) objectsOnMap.get(playerId);
-                    playersOnMap.add(playerId, new Player(currentPlayer.move(Movable.Direction.DOWN, 10L)));
+                    playersOnMap.add(playerId, new Player(currentPlayer.move(Movable.EventType.DOWN, 10L)));
                     break;
 
                 case Left:
                     currentPlayer = (Player) objectsOnMap.get(playerId);
-                    playersOnMap.add(playerId, new Player(currentPlayer.move(Movable.Direction.LEFT, 10L)));
+                    playersOnMap.add(playerId, new Player(currentPlayer.move(Movable.EventType.LEFT, 10L)));
                     break;
 
                 case Right:
                     currentPlayer = (Player) objectsOnMap.get(playerId);
-                    playersOnMap.add(playerId, new Player(currentPlayer.move(Movable.Direction.RIGHT, 10L)));
+                    playersOnMap.add(playerId, new Player(currentPlayer.move(Movable.EventType.RIGHT, 10L)));
                     break;
 
                 case Bomb:
                     currentPlayer = (Player) objectsOnMap.get(playerId);
 
-                    playersOnMap.add(playerId, new Player(currentPlayer.move(Movable.Direction.IDLE, 10L)));
+                    playersOnMap.add(playerId, new Player(currentPlayer.move(Movable.EventType.IDLE, 10L)));
                     bombOnMap.add(playerId, new Bomb(currentPlayer.getPosition()));
                     break;
 
