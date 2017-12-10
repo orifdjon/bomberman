@@ -70,14 +70,8 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
     }
 
 
-<<<<<<< HEAD
-    public static String handleReplica(@NotNull JsonReplica jsonReplica, @NotNull List<? extends GameObject> list) {
-        DataReplica dataReplica = jsonReplica.getData();
-        dataReplica.setObjects(list);
-        String json = JsonHelper.toJson(jsonReplica);
-=======
     @NotNull
-    public static String handleReplica(@NotNull final Replica replica, @NotNull final List<? extends GameObject> list) {
+    public static String handleReplica(@NotNull final JsonReplica replica, @NotNull final List<? extends GameObject> list) {
         DataReplica dataReplica = replica.getData();
         dataReplica.setObjects(list);
         return JsonHelper.toJson(replica);
@@ -102,7 +96,6 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
         dataReplica.setObjects(list);
         dataReplica.setExampleEEE(map);
         String json = JsonHelper.toJson(replica);
->>>>>>> c7933a5fb881bc33eef41bbbbb09be0c2d1e1ec1
         return json;
     }*/
 
