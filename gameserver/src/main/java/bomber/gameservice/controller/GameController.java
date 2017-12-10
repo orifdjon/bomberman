@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GameController {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(GameController.class);
     private static AtomicInteger connectedPlayerCount = new AtomicInteger(0);
-    public static Map<Long, GameSession> gameSessionMap = new ConcurrentHashMap<>();
+    public static final Map<Long, GameSession> gameSessionMap = new ConcurrentHashMap<>();
     /**
      * curl -i localhost:8090/game/create
      */
@@ -85,13 +85,8 @@ public class GameController {
     }
 
     public void start(final long gameId) {
-        new Thread(new GameThread(gameId), "game-mechanics with gameId = " + gameId).start();// создаем новый тред для игры c gameId
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                log.info("hello");
-            }
-        });
+        new Thread(new GameThread(gameId), "game-mechanics-gameId-" + gameId).start();// создаем новый тред для игры c gameId
+
     }
 
    /* public static void main(String[] args) {                  // Это нужно было для проверки корректности

@@ -1,10 +1,11 @@
 package bomber.games.gamesession;
 
-import bomber.games.util.JsonHelper;
+import bomber.games.model.GameObject;
+import java.util.HashMap;
 
 public final class Replicator {
 
-    public static final void writeReplica(Replica replica) {
-
+    public static final String writeReplica(HashMap<Integer, GameObject> replica) {
+    return null;
     }
 }

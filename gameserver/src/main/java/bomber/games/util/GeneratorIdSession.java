@@ -6,7 +6,6 @@ import java.util.concurrent.atomic.AtomicLong;
 public class GeneratorIdSession {
     private static final AtomicLong idGenerator = new AtomicLong(0);
 
-
     public static long getAndIncrementId() {
         return idGenerator.getAndIncrement();
     }

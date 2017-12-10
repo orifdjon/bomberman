@@ -48,18 +48,16 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
 
     public static String handlePossess(@NotNull Integer data) { // возврщает json
         Possess possess = new Possess();
-        possess.setTopic(Topic.POSSESS);
         possess.setData(data);
         String json = JsonHelper.toJson(possess);
         return json;
     }
 
 
-    public static String handleReplica(@NotNull Replica replica, @NotNull List<? extends GameObject> list) {
-        replica.setTopic(Topic.REPLICA);
-        DataReplica dataReplica = replica.getData();
+    public static String handleReplica(@NotNull JsonReplica jsonReplica, @NotNull List<? extends GameObject> list) {
+        DataReplica dataReplica = jsonReplica.getData();
         dataReplica.setObjects(list);
-        String json = JsonHelper.toJson(replica);
+        String json = JsonHelper.toJson(jsonReplica);
         return json;
     }
 

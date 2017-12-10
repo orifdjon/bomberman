@@ -5,13 +5,12 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 
 import java.net.URI;
 
-public class Replica {
+public class JsonReplica {
 
-    public static URI txt;
-    private Topic topic;
+    private final Topic topic = Topic.REPLICA;
     private DataReplica data = new DataReplica();
 
-    public Replica() {
+    public JsonReplica() {
     }
 
     public Topic getTopic() {
@@ -21,10 +20,6 @@ public class Replica {
     @JsonGetter("data")
     public DataReplica getData() {
         return data;
-    }
-
-    public void setTopic(Topic topic) {
-        this.topic = topic;
     }
 
     public void setData(DataReplica data) {
