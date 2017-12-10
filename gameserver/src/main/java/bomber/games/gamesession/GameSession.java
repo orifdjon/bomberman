@@ -3,48 +3,48 @@ package bomber.games.gamesession;
 
 import bomber.games.model.GameObject;
 import bomber.games.model.Tickable;
-import bomber.games.util.GeneratorIdSession;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class GameSession implements Tickable {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(GameSession.class);
-    private List<GameObject> gameObjects = new ArrayList<>();
-    private final long id;
-    private final AtomicLong idGenerator = new AtomicLong(0); // У каждой сессии свой набор id
+    private Map<Integer, GameObject> replica = new HashMap<>();
+    private boolean gameOver = false;
+    private final long Id;
+    private final AtomicInteger idGenerator = new AtomicInteger(1); // IdGenerator for each sessiond
 
-
-    public GameSession(long id) {
-        this.id = id;
-    }
-
-    public long getAndIncrementIdIntoSession() {
-        return idGenerator.getAndIncrement();
+    public GameSession(final long Id) {
+        this.Id = Id;
     }
 
     public long getId() {
-        return id;
+        return Id;
     }
 
-    public long getIdGenerator() {
-        return idGenerator.get();
+    public boolean isGameOver() {
+        return gameOver;
     }
 
-    public List<GameObject> getGameObjects() {
-        return new ArrayList<>(gameObjects);
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
     }
 
-    public void addGameObject(GameObject gameObject) {
-        gameObjects.add(gameObject);
+    public HashMap<Integer, GameObject> getGameObjects() {
+        return new HashMap<>(replica);
+    }
+
+    public void addGameObject(final GameObject gameObject) {
+        replica.put(idGenerator.getAndIncrement(), gameObject);
     }
 
     @Override
-    public void tick(long elapsed) {
+    public void tick(final long elapsed) {
         log.info("tick");
-        for (GameObject gameObject : gameObjects) {
+        for (GameObject gameObject : replica.values()) {
             if (gameObject instanceof Tickable) {
                 ((Tickable) gameObject).tick(elapsed);
             }
@@ -52,13 +52,13 @@ public class GameSession implements Tickable {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj){
             return true;
         } else {
             if (obj instanceof GameSession) {
                GameSession gameSession = (GameSession) obj;
-               return this.id == gameSession.id;
+               return this.Id == gameSession.Id;
             }
             return false;
         }

@@ -7,7 +7,7 @@ import bomber.games.model.Positionable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.slf4j.LoggerFactory;
 
-public final class Box implements Positionable {
+public final class  Box implements Positionable {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Box.class);
     private final Point position;
     private final long id;

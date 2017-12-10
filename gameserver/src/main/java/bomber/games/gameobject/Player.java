@@ -14,17 +14,18 @@ public final class Player implements Movable {
     private final long id;
     private long lifeTime;
     private int velocity;
-    private int rangeExplosion;
-    private int countBomb;
+    private int explosionRange;
+    private int bombCount;
+
     private final String type = "Pawn";
 
 
     public Player(final long id, final Point position) {
         this.id = id;
         this.position = position;
-        this.rangeExplosion = 1;
+        this.explosionRange = 1;
         this.velocity = 1;
-        this.countBomb = 1;
+        this.bombCount = 1;
         this.lifeTime = 0; //надо над этим подумать
     }
 
@@ -74,8 +75,8 @@ public final class Player implements Movable {
         lifeTime += elapsed;
     }
 
-    public int getRangeExplosion() {
-        return rangeExplosion;
+    public int getExplosionRange() {
+        return explosionRange;
     }
 
     @Override
@@ -100,15 +101,15 @@ public final class Player implements Movable {
         return "Player: {" +
                 "\nid = " + id +
                 "\nposition = " + position +
-                "\nrangeExplosion = " + rangeExplosion +
+                "\nexplosionRange = " + explosionRange +
                 "\nvelocity = " + velocity +
-                "\ncountBomb = " + countBomb +
+                "\nbombCount = " + bombCount +
                 "\nlifeTime = " + lifeTime +
                 "\n}";
     }
 
-    public int getCountBomb() {
-        return countBomb;
+    public int getBombCount() {
+        return bombCount;
     }
 
 

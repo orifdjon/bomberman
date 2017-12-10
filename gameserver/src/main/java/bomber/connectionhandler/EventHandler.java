@@ -71,7 +71,7 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
 
 
     @NotNull
-    public static String handleReplica(@NotNull final Replica replica, @NotNull final List<? extends GameObject> list) {
+    public static String handleReplica(@NotNull final JsonReplica replica, @NotNull final List<? extends GameObject> list) {
         DataReplica dataReplica = replica.getData();
         dataReplica.setObjects(list);
         return JsonHelper.toJson(replica);

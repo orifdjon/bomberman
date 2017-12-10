@@ -8,7 +8,6 @@ import static bomber.gameservice.controller.GameController.gameSessionMap;
 public class GameThread implements Runnable {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(GameThread.class);
     private final long gameId;
-    private Thread gameThread;
 
     public GameThread(final long gameId) {
         this.gameId = gameId;

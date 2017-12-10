@@ -1,6 +1,11 @@
 package bomber.games.gamesession;
 
-public class Replicator {
+import bomber.games.model.GameObject;
+import java.util.HashMap;
 
+public final class Replicator {
 
+    public static final String writeReplica(HashMap<Integer, GameObject> replica) {
+    return null;
+    }
 }
