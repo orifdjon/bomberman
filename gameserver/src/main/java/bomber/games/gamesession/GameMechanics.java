@@ -40,8 +40,8 @@ public class GameMechanics {
 
 
         //Заполним Box и Wall
-        for (int j = 0; j <= gameZone; j = j + brickSize) {
-            for (int i = 0; i <= gameZone; i = i + brickSize) {
+        for (int j = 1; j <= gameZone; j = j + brickSize) {
+            for (int i = 1; i <= gameZone; i = i + brickSize) {
                     /*
                     Представим нашу игровую площадку как двумерный массив. Прогуляемся по нему,
                     попутно расставляя объекты по принципу:
@@ -100,6 +100,18 @@ public class GameMechanics {
             replica.put(gameSession.getInc(), new Bonus(gameSession.getId(), new Point(rand.nextInt(gameZone - 1) + 1,
                     rand.nextInt(gameZone - 1) + 1), Bonus.Type.BONUS_RANGE));
         }
+
+        /*
+        Теперь надо окружить игровое поле непробиваемыми стенами, чтобы никто не убежал
+         */
+        for (int j = 1; j <= gameZone + 1; j = j + brickSize) {
+                replica.put(gameSession.getInc(), new Wall(gameSession.getId(), new Point(0, j)));
+                replica.put(gameSession.getInc(), new Wall(gameSession.getId(), new Point(gameZone+1, j)));
+                replica.put(gameSession.getInc(),new Wall(gameSession.getId(),new Point(j,0)));
+                replica.put(gameSession.getInc(),new Wall(gameSession.getId(),new Point(j,gameZone+1)));
+        }
+
+
         return replica;
     }
 
