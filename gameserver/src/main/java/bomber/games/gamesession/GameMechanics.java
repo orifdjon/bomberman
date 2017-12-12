@@ -110,14 +110,13 @@ public class GameMechanics {
         Теперь надо окружить игровое поле непробиваемыми стенами, чтобы никто не убежал
          */
         for (int j = 1; j <= gameZone + 1; j = j + brickSize) {
-                replica.put(gameSession.getInc(), new Wall(gameSession.getId(), new Point(0, j)));
-                replica.put(gameSession.getInc(), new Wall(gameSession.getId(), new Point(gameZone+1, j)));
-                replica.put(gameSession.getInc(),new Wall(gameSession.getId(),new Point(j,0)));
-                replica.put(gameSession.getInc(),new Wall(gameSession.getId(),new Point(j,gameZone+1)));
+                replica.put(idGenerator.getAndIncrement(), new Wall(idGenerator.getAndIncrement(), new Point(0, j)));
+                replica.put(idGenerator.getAndIncrement(), new Wall(idGenerator.getAndIncrement(), new Point(gameZone+1, j)));
+                replica.put(idGenerator.getAndIncrement(),new Wall(idGenerator.getAndIncrement(),new Point(j,0)));
+                replica.put(idGenerator.getAndIncrement(),new Wall(idGenerator.getAndIncrement(),new Point(j,gameZone+1)));
         }
 
-
-        return replica;
+        
     }
 
     public void readInputQueue(ConcurrentLinkedQueue<PlayerAction> inputQueue) {
