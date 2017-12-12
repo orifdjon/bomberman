@@ -16,3 +16,12 @@ gameserver/out/test/
 
 
 /gradle/
+/gameserver/out/
+.gradle/
+.idea/
+build/
+frontend/build/
+gameserver/out/
+!/gameserver/out/
+/matchmaker/build/
+/gameserver/build/

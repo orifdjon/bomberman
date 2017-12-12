@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequestMapping("/game")
 public class GameController {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(GameController.class);
-    private static AtomicInteger connectedPlayerCount = new AtomicInteger(0);
+    private static AtomicInteger connectedPlayerCount = new AtomicInteger(4);
     static Map<Long, GameSession> gameSessionMap = new ConcurrentHashMap<>();
     /**
      * curl -i localhost:8090/game/create
