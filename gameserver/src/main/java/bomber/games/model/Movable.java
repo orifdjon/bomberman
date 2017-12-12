@@ -11,7 +11,7 @@ public interface Movable extends Positionable, Tickable {
      * Tries to move entity towards specified direction for time
      * @return final position after movement
      */
-    Point move(Direction direction);
+    Point move(Direction direction, long time);
 
     void tick(long elapsed);
 

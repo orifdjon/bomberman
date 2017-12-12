@@ -2,7 +2,7 @@ package bomber.gameservice;
 
 
 import bomber.games.util.GeneratorIdSession;
-import bomber.connectionhandler.GameController;
+import bomber.gameservice.controller.GameController;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -30,7 +30,7 @@ public final class Bomb implements Tickable, Positionable {
 
     @Override
     public void tick(final long elapsed) {
-        lifeTime += elapsed;
+        lifeTime -= elapsed;
     }
 
     @Override

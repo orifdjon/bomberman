@@ -1,4 +1,4 @@
-package bomber.connectionhandler;
+package bomber.gameservice.controller;
 
 
 import bomber.games.gamesession.GameSession;

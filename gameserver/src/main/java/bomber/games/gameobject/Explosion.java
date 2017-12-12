@@ -25,7 +25,7 @@ public final class Explosion implements Tickable, Positionable {
 
     @Override
     public void tick(final long elapsed) {
-        lifeTime += elapsed;
+        lifeTime -= elapsed;
     }
 
     @Override
