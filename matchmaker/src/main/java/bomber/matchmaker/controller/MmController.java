@@ -44,7 +44,7 @@ public class MmController {
     @CrossOrigin(origins = "*")
     public ResponseEntity<String> join(@RequestBody String data) throws IOException {
         String[] massivStringForInputName = data.split("=");
-        String name = massivStringForInputName[1];
+        String name = massivStringForInputName[1]; // get player's name
         StartThread startThread = new StartThread(gameId, bomberService); //creates an object of StartTh
         if (gameId == null) {
             log.info("Requesting GS to create a game");
