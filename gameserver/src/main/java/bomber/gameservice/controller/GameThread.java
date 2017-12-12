@@ -14,20 +14,27 @@ public class GameThread implements Runnable {
     private GameMechanics gameMechanics = new GameMechanics();
     Ticker ticker = new Ticker();
 
+
     public GameThread(final long gameId) {
         this.gameId = gameId;
     }
 
+
     @Override
+
     public void run() {
+        
         log.info("Start new thread called game-mechanics with gameId = " + gameId);
         GameSession gameSession = new GameSession((int) gameId, false);
         log.info("Game has been init gameId={}", gameId);
         gameSessionMap.put(gameId, gameSession);
-        gameMechanics.setupGame();
+        gameMechanics.setupGame(gameSession.getReplica(),gameSession.getIdGenerator());
         while (!gameSession.isGameover()) {
-            gameMechanics.readInputQueue();
-            gameMechanics.doMechanic();
+
+            ticker.gameLoop();
+            long elapsed = ticker.getElapsed();
+            gameMechanics.readInputQueue(gameSession.getInputQueue());
+            gameMechanics.doMechanic(gameSession,gameSession.getReplica(),elapsed);
         }
     }
 }

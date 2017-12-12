@@ -42,8 +42,8 @@ public class GameSession implements Tickable {
         return id;
     }
 
-    public long getIdGenerator() {
-        return idGenerator.get();
+    public AtomicInteger getIdGenerator() {
+        return idGenerator;
     }
 
     public HashMap<Integer, GameObject> getReplica() {
