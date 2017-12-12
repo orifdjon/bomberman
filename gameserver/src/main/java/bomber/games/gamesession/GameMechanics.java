@@ -134,18 +134,20 @@ public class GameMechanics {
         inputQueue.clear();
     }
 
-    public Map<Integer, GameObject> doMechanic(GameSession gameSession, Map<Integer, GameObject> replica) {
+    public Map<Integer, GameObject> doMechanic(GameSession gameSession, Map<Integer, GameObject> replica, long elapsed) {
+
+        int stillAlive = 0;//чит
+        MechanicsSubroutines mechanicsSubroutines = new MechanicsSubroutines();//подняли вспомогательные методы
 
         for (GameObject gameObject : replica.values()) {
-            MechanicsSubroutines mechanicsSubroutines = new MechanicsSubroutines();//подняли вспомогательные методы
 
             if (gameObject instanceof Player) {
                 Player currentPlayer = ((Player) gameObject);
-
+                stillAlive++;
                 switch (actionOnMap.get(gameObject.getId()).getType()) { //либо шагает Up,Down,Right,Left, либо ставит бомбу Bomb
 
                     case UP: //если идет вверх
-                        currentPlayer.setPosition(((Player) gameObject).move(Movable.Direction.UP));//задали новые координаты
+                        currentPlayer.setPosition(((Player) gameObject).move(Movable.Direction.UP,elapsed));//задали новые координаты
                         if (mechanicsSubroutines.collisionCheck(gameObject, replica)) {//Если никуда не врезается, то
                             replica.replace(gameObject.getId(), currentPlayer);//перемещаем игрока
                         }
@@ -153,7 +155,7 @@ public class GameMechanics {
                         break;
 
                     case DOWN:
-                        currentPlayer.setPosition(((Player) gameObject).move(Movable.Direction.DOWN));//задали новые координаты
+                        currentPlayer.setPosition(((Player) gameObject).move(Movable.Direction.DOWN,elapsed));//задали новые координаты
                         if (mechanicsSubroutines.collisionCheck(gameObject, replica)) {//Если никуда не врезается, то
                             replica.replace(gameObject.getId(), currentPlayer);//перемещаем игрока
                         }
@@ -161,7 +163,7 @@ public class GameMechanics {
 
                         break;
                     case LEFT:
-                        currentPlayer.setPosition(((Player) gameObject).move(Movable.Direction.LEFT));//задали новые координаты
+                        currentPlayer.setPosition(((Player) gameObject).move(Movable.Direction.LEFT,elapsed));//задали новые координаты
                         if (mechanicsSubroutines.collisionCheck(gameObject, replica)) {//Если никуда не врезается, то
                             replica.replace(gameObject.getId(), currentPlayer);//перемещаем игрока
                         }
@@ -169,7 +171,7 @@ public class GameMechanics {
 
                         break;
                     case RIGHT:
-                        currentPlayer.setPosition(((Player) gameObject).move(Movable.Direction.RIGHT));//задали новые координаты
+                        currentPlayer.setPosition(((Player) gameObject).move(Movable.Direction.RIGHT,elapsed));//задали новые координаты
                         if (mechanicsSubroutines.collisionCheck(gameObject, replica)) {//Если никуда не врезается, то
                             replica.replace(gameObject.getId(), currentPlayer);//перемещаем игрока
                         }
@@ -205,8 +207,8 @@ public class GameMechanics {
             }
 
             if (gameObject instanceof Bomb) { //начинаем работать с бомбами
-                if (!(((Bomb) gameObject).getLifeTime() == 0)) { //если эта бомба еще не взорвалась
-                    ((Bomb) gameObject).decrementLifeTime(); //отнимем время до взрыва
+                if (!(((Bomb) gameObject).getLifeTime() <= 0)) { //если эта бомба еще не взорвалась
+                    ((Bomb) gameObject).tick(elapsed); //отнимем время до взрыва
                 } else { //если взорвалась то
 
                     //Слооожнаа
@@ -277,10 +279,10 @@ public class GameMechanics {
             }
             replica.remove(gameObject.getId()); //Удалим бомбу из replica
             if (gameObject instanceof Explosion) { //Найдем тех, кого в итоге убило ^__^ ну и протикаем продолжительность взрыва
-                if (((Explosion) gameObject).getLifeTime() == 0) { //если время закончилось
+                if (((Explosion) gameObject).getLifeTime() <= 0) { //если время закончилось
                     replica.remove(gameObject.getId());//удалим его
                 } else { //если взрыв еще держится
-                    ((Explosion) gameObject).decrementLifeTime(); //отнимем время до взрыва
+                    ((Explosion) gameObject).tick(elapsed); //отнимем время до взрыва
 
 
                     for (GameObject playerObject : replica.values()) { //Далее охотимся на игроков
@@ -290,6 +292,9 @@ public class GameMechanics {
                     }
                 }
             }
+        }
+        if (stillAlive == 1) {
+            gameSession.setGameover(true);
         }
         return replica;
     }
