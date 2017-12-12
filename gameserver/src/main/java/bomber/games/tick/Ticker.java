@@ -15,12 +15,13 @@ public class Ticker {
     private static final long FRAME_TIME = 1000 / FPS;
     private Set<Tickable> tickables = new ConcurrentSkipListSet<>();
     private long tickNumber = 0;
+    private long elapsed;
 
     public void gameLoop() {
         while (!Thread.currentThread().isInterrupted()) {
             long started = System.currentTimeMillis();
             act(FRAME_TIME);
-            long elapsed = System.currentTimeMillis() - started;
+            elapsed = System.currentTimeMillis() - started;
             if (elapsed < FRAME_TIME) {
                 log.info("All tick finish at {} ms", elapsed);
                 LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(FRAME_TIME - elapsed));
@@ -30,6 +31,10 @@ public class Ticker {
             log.info("{}: tick ", tickNumber);
             tickNumber++;
         }
+    }
+
+    public long getElapsed() {
+        return elapsed;
     }
 
     public void registerTickable(Tickable tickable) {

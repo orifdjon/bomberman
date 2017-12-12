@@ -29,23 +29,23 @@ public final class Player implements Movable {
     }
 
     @Override
-    public Point move(Direction direction) {
+    public Point move(Direction direction, long time) {
 
         switch (direction) {
             case UP:
-                position = new Point(position.getX(), (int) (position.getY() + (velocity)));
+                position = new Point(position.getX(), (int) (position.getY() + (time*velocity)));
                 tick(1L);
                 break;
             case DOWN:
-                position = new Point(position.getX(), (int) (position.getY() - (velocity)));
+                position = new Point(position.getX(), (int) (position.getY() - (time*velocity)));
                 tick(1L);
                 break;
             case RIGHT:
-                position = new Point((int) (position.getX() + (velocity)), position.getY());
+                position = new Point((int) (position.getX() + (time*velocity)), position.getY());
                 tick(1L);
                 break;
             case LEFT:
-                position = new Point((int) (position.getX() - (velocity)), position.getY());
+                position = new Point((int) (position.getX() - (time*velocity)), position.getY());
                 tick(1L);
                 break;
             case IDLE:
