@@ -3,7 +3,7 @@ package bomber.matchmaker.thread;
 
 import bomber.matchmaker.controller.MmController;
 import bomber.matchmaker.request.MmRequests;
-import bomber.matchmaker.service.BomberService;
+//import bomber.matchmaker.service.BomberService;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -20,16 +20,16 @@ public class StartThread extends Thread {
     static final int TIMEOUT = 15;
     static final int MAX_TIMEOUTS = 3;
     private boolean isStarted;
-    private BomberService bomberService;
+//    private BomberService bomberService;
 
     
 
 
-    public StartThread(Integer gameId, BomberService bomberService) {
+    public StartThread(Integer gameId/*, BomberService bomberService */) {
         super("StartThread_gameId=" + gameId);
         suspendFlag = false;
         this.gameId = gameId;
-        this.bomberService = bomberService;
+//        this.bomberService = bomberService;
         isStarted = false;
 
     }
@@ -43,7 +43,7 @@ public class StartThread extends Thread {
             try {
                 playersConnected = Integer.parseInt(MmRequests.checkStatus().body().string());
                 if (playersConnected == MAX_PLAYER_IN_GAME) {
-                    bomberService.addToDb(gameId, new Date());
+//                    bomberService.addToDb(gameId, new Date());
                     log.info("Sending a request to start the game with {} out of {} players in it, gameID = {}",
                             playersConnected, MAX_PLAYER_IN_GAME, gameId);
                     MmRequests.start(this.gameId);
@@ -67,7 +67,7 @@ public class StartThread extends Thread {
             if (playersConnected == 0 || playersConnected == 1) {
                 log.info("failed to start the game");
             } else {
-                bomberService.addToDb(gameId, new Date());
+//                bomberService.addToDb(gameId, new Date());
                 log.info("Sending a request to start the game with {} out of {} players in it, gameID = {}",
                         playersConnected, MAX_PLAYER_IN_GAME, gameId);
                 try {

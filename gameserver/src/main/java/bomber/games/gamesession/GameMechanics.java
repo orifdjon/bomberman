@@ -18,7 +18,7 @@ public class GameMechanics {
     final int gameZone_X = 17;//0,16 - стенки по X
     private final int gameZone_Y = 13; //0,12 - стенки по Y
     public int playersCount = 4;//Число игроков
-    final int brickSize = 1;//в будущем, когда будет накладываться на это дело фронтенд, это пригодится
+    final int brickSize = 32;//в будущем, когда будет накладываться на это дело фронтенд, это пригодится
     final int bonusCount = 4;//3*Количество бонусов, которые отспаунятся
 
     public GameMechanics() {
@@ -35,24 +35,28 @@ public class GameMechanics {
         Площадкамана построили, насяльника, можно заселять игроков
         */
         idGenerator.getAndIncrement();
-        replica.put(idGenerator.get(), new Player(idGenerator.get(), new Point(1, 1)));//Первый игрок
+        replica.put(idGenerator.get(), new Player(idGenerator.get(), new Point(1 * brickSize * 2, 1 * brickSize * 2)));//Первый игрок
         idGenerator.getAndIncrement();
-        replica.put(idGenerator.get(), new Player(idGenerator.get(), new Point(gameZone_X, 1)));//Второй игрок
+        replica.put(idGenerator.get(), new Box(idGenerator.get(), new Point(0, 0)));
         idGenerator.getAndIncrement();
-        replica.put(idGenerator.get(), new Player(idGenerator.get(), new Point(1, gameZone_Y)));//Третий игрок
+        replica.put(idGenerator.get(), new Box(idGenerator.get(), new Point(gameZone_X*brickSize - brickSize, gameZone_Y*brickSize - brickSize)));
         idGenerator.getAndIncrement();
-        replica.put(idGenerator.get(), new Player(idGenerator.get(), new Point(gameZone_X, gameZone_Y)));//Четвертый игрок
+        replica.put(idGenerator.get(), new Player(idGenerator.get(), new Point(gameZone_X - brickSize * 2, 1 * brickSize * 2)));//Второй игрок
+        idGenerator.getAndIncrement();
+        replica.put(idGenerator.get(), new Player(idGenerator.get(), new Point(1 * brickSize * 2, gameZone_Y - brickSize * 2)));//Третий игрок
+        idGenerator.getAndIncrement();
+        replica.put(idGenerator.get(), new Player(idGenerator.get(), new Point(gameZone_X - brickSize * 2, gameZone_Y - brickSize * 2)));//Четвертый игрок
 
 
 
         //Заполним Box и Wall
-        for (int j = 0; j < gameZone_X; j = j + brickSize) {
-            for (int i = 0; i < gameZone_Y; i = i + brickSize) {
-                    /*
+      /*  for (int j = 0; j < gameZone_X * brickSize; j = j + brickSize) {
+            for (int i = 0; i < gameZone_Y * brickSize; i = i + brickSize) {
+                    *//*
                     Представим нашу игровую площадку как двумерный массив. Прогуляемся по нему,
                     попутно расставляя объекты по принципу:
                     четная i и четная j заполняется Wall, остальное Box
-                    */
+                    *//*
                 if ((i % 2 == 0) && (j % 2 == 0)) {
                     idGenerator.getAndIncrement();
                     replica.put(idGenerator.get(), new Wall(idGenerator.get(), new Point(i, j)));
@@ -61,7 +65,7 @@ public class GameMechanics {
                     replica.put(idGenerator.get(), new Box(idGenerator.get(), new Point(i, j)));
                 }
             }
-        }
+        }*/
 
         /*
         Пространство вокруг игроков надо освободить, поэтому
@@ -112,7 +116,7 @@ public class GameMechanics {
         /*
         Теперь надо окружить игровое поле непробиваемыми стенами, чтобы никто не убежал
          */
-        for (int j = 0; j < gameZone_Y; j = j + brickSize) {
+        /*for (int j = 0; j < gameZone_Y * brickSize; j = j + brickSize) {
                 idGenerator.getAndIncrement();
                 replica.put(idGenerator.get(), new Wall(idGenerator.get(), new Point(0, j)));
                 idGenerator.getAndIncrement();
@@ -121,7 +125,7 @@ public class GameMechanics {
                 replica.put(idGenerator.get(),new Wall(idGenerator.get(),new Point(j,0)));
                 idGenerator.getAndIncrement();
                 replica.put(idGenerator.get(),new Wall(idGenerator.get(),new Point(j,gameZone_Y - 1)));
-        }
+        }*/
     }
 
     public void readInputQueue(ConcurrentLinkedQueue<PlayerAction> inputQueue) {

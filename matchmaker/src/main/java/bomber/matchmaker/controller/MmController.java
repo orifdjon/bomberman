@@ -6,7 +6,7 @@ package bomber.matchmaker.controller;
 import bomber.matchmaker.connection.Connection;
 import bomber.matchmaker.connection.ConnectionQueue;
 import bomber.matchmaker.request.MmRequests;
-import bomber.matchmaker.service.BomberService;
+//import bomber.matchmaker.service.BomberService;
 import bomber.matchmaker.thread.StartThread;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +29,8 @@ public class MmController {
     private static AtomicInteger idGenerator = new AtomicInteger();
     public static final int MAX_PLAYER_IN_GAME = 4;
 
-    @Autowired
-    private BomberService bomberService;
+//    @Autowired
+//    private BomberService bomberService;
 
     /**
      * curl -X POST -i localhost:8080/matchmaker/join -d 'name=bomberman'
@@ -47,7 +47,7 @@ public class MmController {
         String[] massivStringForInputName = data.split("=");
         String name = massivStringForInputName[1]; // get player's name
 
-        StartThread startThread = new StartThread(gameId, bomberService); //creates an object of StartTh
+        StartThread startThread = new StartThread(gameId/*, bomberService */); //creates an object of StartTh
         if (gameId == null) {
             log.info("Requesting GS to create a game");
             gameId = Integer.parseInt(MmRequests.create(MAX_PLAYER_IN_GAME).body().string());
