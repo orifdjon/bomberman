@@ -1,9 +1,19 @@
 package bomber.gameservice.controller;
 
+
 import bomber.games.gamesession.GameMechanics;
 import bomber.games.gamesession.GameSession;
 import bomber.games.tick.Ticker;
 import org.slf4j.LoggerFactory;
+
+
+import bomber.connectionhandler.EventHandler;
+import bomber.connectionhandler.json.Json;
+import bomber.games.gamesession.GameSession;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+
 
 import static bomber.gameservice.controller.GameController.gameSessionMap;
 
@@ -11,6 +21,7 @@ public class GameThread implements Runnable {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(GameThread.class);
     private final long gameId;
     private Thread gameThread;
+
     private GameMechanics gameMechanics = new GameMechanics();
     Ticker ticker = new Ticker();
 
@@ -18,6 +29,7 @@ public class GameThread implements Runnable {
     public GameThread(final long gameId) {
         this.gameId = gameId;
     }
+
 
 
     @Override
@@ -37,4 +49,21 @@ public class GameThread implements Runnable {
             gameMechanics.doMechanic(gameSession,gameSession.getReplica(),elapsed);
         }
     }
+
+    @Override
+    public void run() {
+        log.info("Start new thread called game-mechanics with gameId = " + gameId);
+        GameSession gameSession = new GameSession((int) gameId);
+        log.info("Game has been init gameId={}", gameId);
+        gameSessionMap.put(gameId, gameSession);
+        gameSession.setupGameMap();
+        log.info("========================================");
+        log.info(Json.replicaToJson(gameSession.getReplica()));
+        try {
+            EventHandler.sendReplica(gameSession.getId());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

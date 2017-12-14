@@ -15,7 +15,7 @@ public final class GameGround implements Positionable {
     public GameGround(final int id, final Point position) {
         this.id = id;
         this.position = position;
-        log.info("New Box: id={},  id={}, position({}, {})", id, position.getX(), position.getY());
+        log.info("New GameGround: id={},  id={}, position({}, {})", id, position.getX(), position.getY());
     }
 
 

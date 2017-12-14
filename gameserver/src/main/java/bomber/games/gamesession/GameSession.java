@@ -22,7 +22,9 @@ public class GameSession implements Tickable {
     private final AtomicInteger idGenerator = new AtomicInteger(0); // У каждой сессии свой набор id
     private ConcurrentLinkedQueue<PlayerAction> inputQueue = new ConcurrentLinkedQueue<>();
     private GameMechanics gameMechanics = new GameMechanics();
+
     private boolean gameover = false;
+
 
     public ConcurrentLinkedQueue<PlayerAction> getInputQueue() {
         return inputQueue;
@@ -32,6 +34,10 @@ public class GameSession implements Tickable {
         gameMechanics.setupGame(replica, idGenerator);
         this.id = id;
         this.gameover = gameover;
+    }
+
+    public void setupGameMap() {
+        gameMechanics.setupGame(replica, idGenerator);
     }
 
     public Integer getInc() {

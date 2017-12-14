@@ -3,9 +3,7 @@ package bomber.games.gamesession;
 import bomber.games.gameobject.*;
 import bomber.games.geometry.Point;
 import bomber.games.model.GameObject;
-import bomber.games.model.Movable;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 public class MechanicsSubroutines {

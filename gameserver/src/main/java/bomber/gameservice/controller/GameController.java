@@ -22,7 +22,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequestMapping("/game")
 public class GameController {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(GameController.class);
-    private static AtomicInteger connectedPlayerCount = new AtomicInteger(0);
+
+    private static AtomicInteger connectedPlayerCount = new AtomicInteger(4);
+
     static Map<Long, GameSession> gameSessionMap = new ConcurrentHashMap<>();
     /**
      * curl -i localhost:8090/game/create
@@ -60,6 +62,9 @@ public class GameController {
             produces = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<String> start(@RequestParam("gameId") String gameIdString) {
+
+//        long gameId = Long.parseLong(gameIdString.substring(1, gameIdString.length() - 1));
+
         long gameId = Long.parseLong(gameIdString);
         if (!gameSessionMap.containsKey(gameId)) {
             log.error("Don't have games to run gameId={}", gameId);
