@@ -148,7 +148,7 @@ public class GameMechanics {
                     switch (actionOnMap.get(currentPlayer.getId()).getType()) { //либо шагает Up,Down,Right,Left, либо ставит бомбу Bomb
                         case UP: //если идет вверх
                             //задали новые координаты
-                                currentPlayer.setPosition(currentPlayer.move(Movable.Direction.UP));
+                            currentPlayer.setPosition(currentPlayer.move(Movable.Direction.UP));
                             if (!(mechanicsSubroutines.collisionCheck(currentPlayer, replica))) {
                                 currentPlayer.setPosition(previosPos);
                             }
@@ -156,7 +156,7 @@ public class GameMechanics {
 
                         case DOWN:
                             //задали новые координаты
-                                currentPlayer.setPosition(currentPlayer.move(Movable.Direction.DOWN));
+                            currentPlayer.setPosition(currentPlayer.move(Movable.Direction.DOWN));
                             if (!(mechanicsSubroutines.collisionCheck(currentPlayer, replica))) {
                                 currentPlayer.setPosition(previosPos);
                             }
@@ -164,14 +164,14 @@ public class GameMechanics {
                         case LEFT:
                             //задали новые координаты
 
-                                currentPlayer.setPosition(currentPlayer.move(Movable.Direction.LEFT));
+                            currentPlayer.setPosition(currentPlayer.move(Movable.Direction.LEFT));
                             if (!(mechanicsSubroutines.collisionCheck(currentPlayer, replica))) {
                                 currentPlayer.setPosition(previosPos);
                             }
                             break;
                         case RIGHT:
 
-                                currentPlayer.setPosition(currentPlayer.move(Movable.Direction.RIGHT));
+                            currentPlayer.setPosition(currentPlayer.move(Movable.Direction.RIGHT));
                             if (!(mechanicsSubroutines.collisionCheck(currentPlayer, replica))) {
                                 currentPlayer.setPosition(previosPos);
                             }
@@ -203,7 +203,7 @@ public class GameMechanics {
                             currentPlayer.setBombPower(currentPlayer.getBombPower() + 1);
                             break;
                         case Bonus_Speed:
-                            currentPlayer.setVelocity(currentPlayer.getVelocity() * 2); //вот тут конечно надо бы оптимизировать
+                            currentPlayer.setVelocity(currentPlayer.getVelocity() * 2);
                             break;
                         default:
                             break;
@@ -212,11 +212,13 @@ public class GameMechanics {
                 }
             }
 
-            /*if (gameObject instanceof Bomb) { //начинаем работать с бомбами
-                if (!(((Bomb) gameObject).getLifeTime() == 0)) { //если эта бомба еще не взорвалась
-                    ((Bomb) gameObject).decrementLifeTime(); //отнимем время до взрыва
-                } else { //если взорвалась то
+            if (gameObject instanceof Bomb) { //начинаем работать с бомбами
+                if (!((Bomb) gameObject).isAlive()) { //если эта бомба еще не взорвалась
 
+                    Bomb currentBomb = (Bomb) gameObject;
+                    log.info("Удаляем бомбу");
+                    replica.remove(gameObject.getId()); //Удалим бомбу из replica
+                    log.info("Бомба удалена");
                     //Слооожнаа
                     boolean up = true;
                     boolean down = true;
@@ -225,81 +227,83 @@ public class GameMechanics {
                     //это все индикаторы, отслеживающие был ли уже взрыв объекта по одной их 4х сторон взрыва, чего то более изящного не придумал
 
                     //Начальные координаты (он же эпицентр взрыва)
-                    int epicenterX = gameObject.getPosition().getX();
-                    int epicenterY = gameObject.getPosition().getY();
+                    int epicenterX = currentBomb.getPosition().getX();
+                    int epicenterY = currentBomb.getPosition().getY();
 
 
                     for (GameObject boxObject : replica.values()) { //пройдем по реплике в поисках жертв
-                        if ((boxObject instanceof Box) | (boxObject instanceof Wall)) { //упростим прогон, пробежавшись только по коробкам
-                            for (int i = 1; i <= ((Bomb) gameObject).getBombPower(); i++) { //надо узнать силу взрыва
-                                for (int j = 1; j <= 4; j++) { //взрыв на все 4 стороны
-                                    switch (j) {
-                                        case 1: //если идет вверх
-                                            if (up) {
-                                                Point currentPoint = new Point(epicenterX, epicenterY + i * brickSize);//сместились вверх от эпицентра, в зависимости от глубины взрыва
-                                                if (mechanicsSubroutines.createExplosions(currentPoint, gameObject, replica)) {
-                                                    replica.put(idGenerator.getAndIncrement(), new Explosion(idGenerator.get(), currentPoint)); //место не занято, отрисуем взрыв
-                                                } else {
-                                                    up = false; //взрыв был потрачен либо в стену, либо в коробку, дальше взрыв не пойдет
-                                                }
+                        //if ((boxObject instanceof Box) || (boxObject instanceof Wall)) { //упростим прогон, пробежавшись только по коробкам
+                        log.info(currentBomb.getPosition().toString() + "Координаты бомбы");
+                        log.info(boxObject.getPosition().toString() + "Координаты сравниваемого объекта");
+
+                        for (int power = 1; power <= (currentBomb).getExplosionRange(); power++) { //надо узнать силу взрыва
+                            for (int side = 1; side <= 4; side++) { //взрыв на все 4 стороны
+                                switch (side) {
+                                    case 1: //если идет вверх
+                                        if (up) {
+                                            Point currentPoint = new Point(epicenterX, epicenterY + power * brickSize);//сместились вверх от эпицентра, в зависимости от глубины взрыва
+                                            if (mechanicsSubroutines.createExplosions(currentPoint, replica)) {
+                                                idGenerator.getAndIncrement();
+                                                replica.put(idGenerator.get(), new Explosion(idGenerator.get(), currentPoint)); //место не занято, отрисуем взрыв
+                                            } else {
+                                                up = false; //взрыв был потрачен либо в стену, либо в коробку, дальше взрыв не пойдет
                                             }
-                                            break;
-                                        case 2://если идет вниз
-                                            if (down) {
-                                                Point currentPoint = new Point(epicenterX, epicenterY - i * brickSize);
-                                                if (mechanicsSubroutines.createExplosions(currentPoint, gameObject, replica)) {
-                                                    replica.put(idGenerator.getAndIncrement(), new Explosion(idGenerator.get(), currentPoint));
-                                                } else {
-                                                    down = false;
-                                                }
+                                        }
+                                        break;
+                                    case 2://если идет вниз
+                                        if (down) {
+                                            Point currentPoint = new Point(epicenterX, epicenterY - power * brickSize);
+                                            if (mechanicsSubroutines.createExplosions(currentPoint, replica)) {
+                                                idGenerator.getAndIncrement();
+                                                replica.put(idGenerator.get(), new Explosion(idGenerator.get(), currentPoint)); //место не занято, отрисуем взрыв
+                                            } else {
+                                                down = false;
                                             }
-                                            break;
-                                        case 3://если идет влево
-                                            if (left) {
-                                                Point currentPoint = new Point(epicenterX - i * brickSize, epicenterY);
-                                                if (mechanicsSubroutines.createExplosions(currentPoint, gameObject, replica)) {
-                                                    replica.put(idGenerator.getAndIncrement(), new Explosion(idGenerator.get(), currentPoint));
-                                                } else {
-                                                    left = false;
-                                                }
+                                        }
+                                        break;
+                                    case 3://если идет влево
+                                        if (left) {
+                                            Point currentPoint = new Point(epicenterX - power * brickSize, epicenterY);
+                                            if (mechanicsSubroutines.createExplosions(currentPoint, replica)) {
+                                                idGenerator.getAndIncrement();
+                                                replica.put(idGenerator.get(), new Explosion(idGenerator.get(), currentPoint)); //место не занято, отрисуем взрыв
+                                            } else {
+                                                left = false;
                                             }
-                                            break;
-                                        case 4://если идет вправо
-                                            if (right) {
-                                                Point currentPoint = new Point(epicenterX + i * brickSize, epicenterY);
-                                                if (mechanicsSubroutines.createExplosions(currentPoint, gameObject, replica)) {
-                                                    replica.put(idGenerator.getAndIncrement(), new Explosion(idGenerator.get(), currentPoint));
-                                                } else {
-                                                    right = false;
-                                                }
+                                        }
+                                        break;
+                                    case 4://если идет вправо
+                                        if (right) {
+                                            Point currentPoint = new Point(epicenterX + power * brickSize, epicenterY);
+                                            if (mechanicsSubroutines.createExplosions(currentPoint, replica)) {
+                                                idGenerator.getAndIncrement();
+                                                replica.put(idGenerator.get(), new Explosion(idGenerator.get(), currentPoint)); //место не занято, отрисуем взрыв
+                                            } else {
+                                                right = false;
                                             }
-                                            break;
-                                        default:
-                                            break;
-                                    }
+                                        }
+                                        break;
+                                    default:
+                                        break;
                                 }
                             }
+                            //}
                         }
                     }
+                }
+
+            }
+            if (gameObject instanceof Explosion) { //убираем Explosion с карты
+                if (!((Explosion) gameObject).isAlive()) {
+                    replica.remove(gameObject.getId());
+                } else {
+                    mechanicsSubroutines.youDied(replica, (Explosion) gameObject);
                 }
             }
-            replica.remove(gameObject.getId()); //Удалим бомбу из replica
-            if (gameObject instanceof Explosion) { //Найдем тех, кого в итоге убило ^__^ ну и протикаем продолжительность взрыва
-                if (((Explosion) gameObject).getLifeTime() == 0) { //если время закончилось
-                    replica.remove(gameObject.getId());//удалим его
-                } else { //если взрыв еще держится
-                    ((Explosion) gameObject).decrementLifeTime(); //отнимем время до взрыва
-
-
-                    for (GameObject playerObject : replica.values()) { //Далее охотимся на игроков
-                        if (playerObject instanceof Player) {
-                            mechanicsSubroutines.youDied(replica, ((Player) playerObject), ((Explosion) gameObject));
-                        }
-                    }
-                }
-            }*/
         }
     }
+
+
 
 
     private List<Point> setSpawnPositions() {   //only default realisation now, may be expanded for more spawn options

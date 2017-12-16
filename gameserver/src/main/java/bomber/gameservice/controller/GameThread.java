@@ -2,6 +2,7 @@ package bomber.gameservice.controller;
 
 
 import bomber.games.gameobject.Bomb;
+import bomber.games.gameobject.Explosion;
 import bomber.games.gameobject.Player;
 import bomber.games.gamesession.GameSession;
 import bomber.games.model.Tickable;
@@ -66,17 +67,16 @@ public class GameThread implements Runnable {
             if (tickable instanceof Player)
                 gameOverCondition--;
             tickable.tick(elapsed);
-            if (tickable instanceof Bomb) {
-                log.info("it is a bomb, im here");
-                if (!((Bomb) tickable).getIsAlive()) {
-                    log.info("it ISNT alive");
-                    gameSession.getReplica().remove(((Bomb) tickable).getId());
-                    tickables.remove(tickable);
-                    Player tmpPlayer = (Player) gameSession.getReplica().get(((Bomb) tickable).getPlayerId());
-                    tmpPlayer.decBombCount();
+            if (tickable instanceof Bomb || tickable instanceof Explosion) {
+                if (!tickable.isAlive()) {
+                    if (tickable instanceof Bomb) {
+                        Player tmpPlayer = (Player) gameSession.getReplica().get(((Bomb) tickable).getPlayerId());
+                        tmpPlayer.decBombCount();
+                    }
+                    log.info("it IS'NT alive");
+                    unregisterTickable(tickable);
                 }
             }
-
         }
 //        tickables.forEach(tickable -> tickable.tick(elapsed));
         if (!(gameOverCondition == 1)) {
@@ -94,5 +94,10 @@ public class GameThread implements Runnable {
     public long getTickNumber() {
         return tickNumber;
     }
+
+    public void unregisterTickable(Tickable tickable) {
+        tickables.remove(tickable);
+    }
+
 
 }
