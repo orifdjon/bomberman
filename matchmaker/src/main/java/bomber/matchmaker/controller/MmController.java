@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.Access;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -43,8 +42,10 @@ public class MmController {
     @ResponseStatus(HttpStatus.OK)
     @CrossOrigin(origins = "*")
     public ResponseEntity<String> join(@RequestBody String data) throws IOException {
+
         String[] massivStringForInputName = data.split("=");
-        String name = massivStringForInputName[1];
+        String name = massivStringForInputName[1]; // get player's name
+
         StartThread startThread = new StartThread(gameId, bomberService); //creates an object of StartTh
         if (gameId == null) {
             log.info("Requesting GS to create a game");

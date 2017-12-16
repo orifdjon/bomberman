@@ -1,114 +1,127 @@
 package bomber.games.gamesession;
 
+import bomber.connectionhandler.EventHandler;
 import bomber.connectionhandler.PlayerAction;
+import bomber.connectionhandler.json.Json;
 import bomber.games.gameobject.*;
 import bomber.games.geometry.Point;
 import bomber.games.model.GameObject;
 import bomber.games.model.Movable;
+import bomber.games.model.Tickable;
+import bomber.games.util.BonusRandom;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.io.IOException;
+import java.util.*;
+
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class GameMechanics {
-    private Map<Integer, PlayerAction> actionOnMap = new HashMap<>();
-    //В оригинальной версии поле 16*16
-    final int gameZone = 15;//0,16 - стенки
-    public int playersCount = 4;//Число игроков
-    final int brickSize = 0;//в будущем, когда будет накладываться на это дело фронтенд, это пригодится
-    final int bonusCount = 4;//3*Количество бонусов, которые отспаунятся
 
-    public GameMechanics() {
+    private static final Logger log = LoggerFactory.getLogger(GameMechanics.class);
+    private static final int MAX_PLAYER_IN_GAME = 4;
+    private Map<Integer, PlayerAction> actionOnMap = new HashMap<>();
+    private final int gameZone_X = 17;//0,16 - стенки по X
+    private final int gameZone_Y = 13; //0,12 - стенки по Y
+    private int playersCount;//Число игроков
+    private final int brickSize = 32;//в будущем, когда будет накладываться на это дело фронтенд, это пригодится
+    private final List<Integer> listPlayerId;
+    private static List<List<Point>> spawnPositionsCollection = new ArrayList<>();
+    private int positionSetting;  //choose which spawn positions will be applied
+    private Set<Tickable> tickables = new ConcurrentSkipListSet<>();
+    private ArrayList<GameObject> map = new ArrayList<>();
+
+    public GameMechanics(int positionSetting, int playersCount) {
+        this.positionSetting = positionSetting;
+        this.playersCount = playersCount;
+        this.listPlayerId = new ArrayList<>();
+        listPlayerId.add(null);
+        this.listPlayerId.addAll(EventHandler.getSessionIdList());
+        List<Point> defaultPositions = new ArrayList<>();
+        defaultPositions.add(null);
+        defaultPositions.add(new Point(brickSize, brickSize));
+        defaultPositions.add(new Point(gameZone_X * brickSize - brickSize * 2, brickSize));
+        defaultPositions.add(new Point(brickSize, gameZone_Y * brickSize - brickSize * 2));
+        defaultPositions.add(new Point(gameZone_X * brickSize - brickSize * 2, gameZone_Y * brickSize - brickSize * 2));
+        spawnPositionsCollection.add(new ArrayList<Point>(defaultPositions));
     }
 
-    public void setupGame(Map<Integer, GameObject> replica, AtomicInteger idGenerator) { //VOID, map instance already exists, no args gameMech is in session
-                                                     //by creation, arguments - replica
-
-        //Создали землю, на которой будем играть
-        replica.put(idGenerator.getAndIncrement(), new GameGround(idGenerator.getAndIncrement(), new Point(0, 0)));//для механики бесполезно, а фронтенду необходимо
-
-        /*
-        Площадкамана построили, насяльника, можно заселять игроков
-        */
-        replica.put(idGenerator.getAndIncrement(), new Player(idGenerator.getAndIncrement(), new Point(1, 1)));//Первый игрок
-        replica.put(idGenerator.getAndIncrement(), new Player(idGenerator.getAndIncrement(), new Point(gameZone, 1)));//Второй игрок
-        replica.put(idGenerator.getAndIncrement(), new Player(idGenerator.getAndIncrement(), new Point(1, gameZone)));//Третий игрок
-        replica.put(idGenerator.getAndIncrement(), new Player(idGenerator.getAndIncrement(), new Point(gameZone, gameZone)));//Четвертый игрок
+    public void setupGame(Map<Integer, GameObject> replica, AtomicInteger idGenerator) {
 
 
-        //Заполним Box и Wall
-        for (int j = 1; j <= gameZone; j = j + brickSize) {
-            for (int i = 1; i <= gameZone; i = i + brickSize) {
-                    /*
-                    Представим нашу игровую площадку как двумерный массив. Прогуляемся по нему,
-                    попутно расставляя объекты по принципу:
-                    четная i и четная j заполняется Wall, остальное Box
-                    */
-                if ((i % 2 == 0) && (j % 2 == 0)) {
-                    replica.put(idGenerator.getAndIncrement(), new Wall(idGenerator.getAndIncrement(), new Point(i, j)));
+        idGenerator.getAndIncrement();
+        replica.put(idGenerator.get(), new Bonus(idGenerator.get(),
+                new Point(brickSize, 2 * brickSize), Bonus.Type.Bonus_Speed));
+
+        idGenerator.getAndIncrement();
+        replica.put(idGenerator.get(), new Bonus(idGenerator.get(),
+                new Point(2 * brickSize, brickSize), Bonus.Type.Bonus_Bomb));
+
+        BonusRandom bonusRandom = new BonusRandom(playersCount);
+
+        for (int x = 0; x <= gameZone_X; x++) {
+            for (int y = 0; y <= gameZone_Y; y++) {
+                if (y == 0 || x == 0 || x * brickSize == (gameZone_X * brickSize - brickSize) ||
+                        y * brickSize == (gameZone_Y * brickSize - brickSize)) {
+                    idGenerator.getAndIncrement();
+                    replica.put(idGenerator.get(), new Wall(idGenerator.get(),
+                            new Point(x * brickSize, y * brickSize)));
+                }
+                if (!(y == 0 || x == 0 || x * brickSize == (gameZone_X * brickSize - brickSize) ||
+                        y * brickSize == (gameZone_Y * brickSize - brickSize)) && ((x % 2 == 0) && (y % 2 == 0))) {
+                    idGenerator.getAndIncrement();
+                    replica.put(idGenerator.get(), new Wall(idGenerator.get(),
+                            new Point(x * brickSize, y * brickSize)));
                 } else {
-                    replica.put(idGenerator.getAndIncrement(), new Box(idGenerator.getAndIncrement(), new Point(i, j)));
+                    if (!(y == 0 || x == 0 || x * brickSize == (gameZone_X * brickSize - brickSize) ||
+                            y * brickSize == (gameZone_Y * brickSize - brickSize))) {
+                        if (!isPlayerSpawn(x, y)) {
+                            Bonus.Type bonus = bonusRandom.randomBonus();
+                            if (bonus != null) {
+                                idGenerator.getAndIncrement();
+                                replica.put(idGenerator.get(), new Bonus(idGenerator.get(),
+                                        new Point(x * brickSize, y * brickSize), bonus));
+                            }
+                            idGenerator.getAndIncrement();
+                            replica.put(idGenerator.get(), new Box(idGenerator.get(),
+                                    new Point(x * brickSize, y * brickSize)));
+                        }
+                    }
                 }
             }
         }
-
-        /*
-        Пространство вокруг игроков надо освободить, поэтому
-        ВАЖНО!!Если найдется герой, который это сделает грамотней - добро пожаловать, а пока вот так
-        (когда каждый объект лежал в отдельной мапе - такой лажи не было
-        */
-
-        //Для первого игрока(Вверх-Влево)
-        replica.remove(1 + 5);
-        replica.remove(2 + 5);
-        replica.remove(gameZone + 1 + 5);
-        //Для второго игрока(Вверх-Вправо)
-        replica.remove(gameZone + 5);
-        replica.remove(gameZone - 1 + 5);
-        replica.remove(2 * gameZone + 5);
-        //Для третьего игрока(Вниз-Влево)
-        replica.remove(gameZone * (gameZone - 1 + 5));
-        replica.remove(gameZone * (gameZone - 1) + 1 + 5);
-        replica.remove(gameZone * (gameZone - 1) - gameZone + 5);
-        //Для четвертого игрока(Вниз-Влево)
-        replica.remove(gameZone * gameZone + 5);
-        replica.remove(gameZone * gameZone - 1 + 5);
-        replica.remove(gameZone * gameZone - gameZone + 5);
-
-
-
-         /*
-         Теперь (в итоге) бонусы
-         */
-
-        Random rand = new Random();//Рандомная координата выпадающего бонуса (но в пределах gameZone)
-        for (int i = 0; i <= bonusCount; i++) {
-
-            replica.put(idGenerator.getAndIncrement(), new Bonus(idGenerator.getAndIncrement(), new Point(rand.nextInt(gameZone - 1) + 1,
-                    rand.nextInt(gameZone - 1) + 1), Bonus.Type.BONUS_SPEED));
+        for (int i = 1; i <= playersCount; i++) {
+            replica.put(listPlayerId.get(i), new Player(listPlayerId.get(i), spawnPositionsCollection.get(positionSetting).get(i)));
+            registerTickable((Tickable) replica.get(listPlayerId.get(i)));
+            try {
+                EventHandler.sendPossess(listPlayerId.get(i));
+            } catch (IOException e) {
+                log.error("unable to sendPosses");
+            }
         }
+    }
 
-        for (int i = 0; i <= bonusCount; i++) {
-            replica.put(idGenerator.getAndIncrement(), new Bonus(idGenerator.getAndIncrement(), new Point(rand.nextInt(gameZone - 1) + 1,
-                    rand.nextInt(gameZone - 1) + 1), Bonus.Type.BONUS_BOMB));
+    private boolean isPlayerSpawn(int x, int y) {
+        boolean flag = false;
+        for (int i = 1; i <= playersCount; i++) {
+            Point playerPoint = new Point(spawnPositionsCollection.get(positionSetting).get(i).getX(),
+                    spawnPositionsCollection.get(positionSetting).get(i).getY());
+            Point currentPoint = new Point(x * brickSize, y * brickSize);
+            if (playerPoint.equals(currentPoint))
+                flag = true;
+            if (new Point(playerPoint.getX() + brickSize, playerPoint.getY()).equals(currentPoint))
+                flag = true;
+            if (new Point(playerPoint.getX(), playerPoint.getY() + brickSize).equals(currentPoint))
+                flag = true;
+            if (new Point(playerPoint.getX() - brickSize, playerPoint.getY()).equals(currentPoint))
+                flag = true;
+            if (new Point(playerPoint.getX(), playerPoint.getY() - brickSize).equals(currentPoint))
+                flag = true;
         }
-
-        for (int i = 0; i <= bonusCount; i++) {
-            replica.put(idGenerator.getAndIncrement(), new Bonus(idGenerator.getAndIncrement(), new Point(rand.nextInt(gameZone - 1) + 1,
-                    rand.nextInt(gameZone - 1) + 1), Bonus.Type.BONUS_RANGE));
-        }
-
-        /*
-        Теперь надо окружить игровое поле непробиваемыми стенами, чтобы никто не убежал
-         */
-        for (int j = 1; j <= gameZone + 1; j = j + brickSize) {
-                replica.put(idGenerator.getAndIncrement(), new Wall(idGenerator.get(), new Point(0, j)));
-                replica.put(idGenerator.getAndIncrement(), new Wall(idGenerator.get(), new Point(gameZone+1, j)));
-                replica.put(idGenerator.getAndIncrement(),new Wall(idGenerator.get(),new Point(j,0)));
-                replica.put(idGenerator.getAndIncrement(),new Wall(idGenerator.get(),new Point(j,gameZone+1)));
-        }
+        return flag;
     }
 
     public void readInputQueue(ConcurrentLinkedQueue<PlayerAction> inputQueue) {
@@ -118,85 +131,95 @@ public class GameMechanics {
             if (!actionOnMap.containsKey(playerId)) { //если действий от этого игрока еще не было
                 actionOnMap.put(playerId, inputQueue.element());//Запишем действие в мапу
             }
+            log.info("Здесь будет actionOnMap");
+            log.info(actionOnMap.toString());
             inputQueue.remove();//удаляем главу этой очереди
         }
     }
 
     public void clearInputQueue(ConcurrentLinkedQueue<PlayerAction> inputQueue) {
-        inputQueue.clear();
+        if (!inputQueue.isEmpty())
+            inputQueue.clear();
+        actionOnMap.clear();
     }
 
-    public Map<Integer, GameObject> doMechanic(GameSession gameSession, Map<Integer, GameObject> replica) {
 
+    public void doMechanic(Map<Integer, GameObject> replica, AtomicInteger idGenerator) {
         for (GameObject gameObject : replica.values()) {
             MechanicsSubroutines mechanicsSubroutines = new MechanicsSubroutines();//подняли вспомогательные методы
-
             if (gameObject instanceof Player) {
                 Player currentPlayer = ((Player) gameObject);
-
-                switch (actionOnMap.get(gameObject.getId()).getType()) { //либо шагает Up,Down,Right,Left, либо ставит бомбу Bomb
-
-                    case UP: //если идет вверх
-                        currentPlayer.setPosition(((Player) gameObject).move(Movable.Direction.UP));//задали новые координаты
-                        if (mechanicsSubroutines.collisionCheck(gameObject, replica)) {//Если никуда не врезается, то
-                            replica.replace(gameObject.getId(), currentPlayer);//перемещаем игрока
-                        }
-                        //Если проверку не прошла, то все остается по старому
-                        break;
-
-                    case DOWN:
-                        currentPlayer.setPosition(((Player) gameObject).move(Movable.Direction.DOWN));//задали новые координаты
-                        if (mechanicsSubroutines.collisionCheck(gameObject, replica)) {//Если никуда не врезается, то
-                            replica.replace(gameObject.getId(), currentPlayer);//перемещаем игрока
-                        }
-                        //Если проверку не прошла, то все остается по старому
-
-                        break;
-                    case LEFT:
-                        currentPlayer.setPosition(((Player) gameObject).move(Movable.Direction.LEFT));//задали новые координаты
-                        if (mechanicsSubroutines.collisionCheck(gameObject, replica)) {//Если никуда не врезается, то
-                            replica.replace(gameObject.getId(), currentPlayer);//перемещаем игрока
-                        }
-                        //Если проверку не прошла, то все остается по старому
-
-                        break;
-                    case RIGHT:
-                        currentPlayer.setPosition(((Player) gameObject).move(Movable.Direction.RIGHT));//задали новые координаты
-                        if (mechanicsSubroutines.collisionCheck(gameObject, replica)) {//Если никуда не врезается, то
-                            replica.replace(gameObject.getId(), currentPlayer);//перемещаем игрока
-                        }
-                        //Если проверку не прошла, то все остается по старому
-
-                        break;
-                    case BOMB:
-                        replica.put(gameSession.getInc(), new Bomb(gameSession.getId(),
-                                currentPlayer.getPosition(), currentPlayer.getRangeExplosion()));
-
-                    default:
-                        break;
-                }
-                if (!(mechanicsSubroutines.bonusCheck(currentPlayer, replica) == null)) { //если был взят бонус
-                    Bonus getBonus = (Bonus) replica.get(mechanicsSubroutines.bonusCheck(currentPlayer, replica));
-                    switch (getBonus.getType()) { //Узнаем что это за бонус
-
-                        case BONUS_BOMB:
-                            currentPlayer.setCountBomb(currentPlayer.getCountBomb() + 1);
+                Point previosPos = currentPlayer.getPosition();
+                if (actionOnMap.containsKey(gameObject.getId())) {
+                    log.info("currentPlayerId = " + currentPlayer.getId());
+                    switch (actionOnMap.get(currentPlayer.getId()).getType()) { //либо шагает Up,Down,Right,Left, либо ставит бомбу Bomb
+                        case UP: //если идет вверх
+                            //задали новые координаты
+                            currentPlayer.setPosition(currentPlayer.move(Movable.Direction.UP));
+                            if (!(mechanicsSubroutines.collisionCheck(currentPlayer, replica))) {
+                                currentPlayer.setPosition(previosPos);
+                            }
                             break;
 
-                        case BONUS_RANGE:
-                            currentPlayer.setRangeExplosion(currentPlayer.getRangeExplosion() + 1);
+                        case DOWN:
+                            //задали новые координаты
+                            currentPlayer.setPosition(currentPlayer.move(Movable.Direction.DOWN));
+                            if (!(mechanicsSubroutines.collisionCheck(currentPlayer, replica))) {
+                                currentPlayer.setPosition(previosPos);
+                            }
                             break;
-                        case BONUS_SPEED:
-                            currentPlayer.setVelocity(currentPlayer.getVelocity() + 1); //вот тут конечно надо бы оптимизировать
+                        case LEFT:
+                            //задали новые координаты
+
+                            currentPlayer.setPosition(currentPlayer.move(Movable.Direction.LEFT));
+                            if (!(mechanicsSubroutines.collisionCheck(currentPlayer, replica))) {
+                                currentPlayer.setPosition(previosPos);
+                            }
+                            break;
+                        case RIGHT:
+
+                            currentPlayer.setPosition(currentPlayer.move(Movable.Direction.RIGHT));
+                            if (!(mechanicsSubroutines.collisionCheck(currentPlayer, replica))) {
+                                currentPlayer.setPosition(previosPos);
+                            }
+                            break;
+                        case BOMB:
+                            Point bombPosition = new Point(currentPlayer.getPosition().getX(),
+                                    currentPlayer.getPosition().getY());
+                            Bomb tmpBomb = new Bomb(idGenerator.get(), bombPosition,
+                                    currentPlayer.getBombPower());
+                            replica.put(idGenerator.get(), tmpBomb);
+                            idGenerator.getAndIncrement();
+                            log.info("Bomb must be here");
+                            log.info("========================================");
+                            log.info(Json.replicaToJson(replica));
+                            registerTickable(tmpBomb);
                             break;
                         default:
                             break;
                     }
-
+                }
+                if (!(mechanicsSubroutines.bonusCheck(currentPlayer, replica) == null)) { //если был взят бонус
+                    Integer tmp = mechanicsSubroutines.bonusCheck(currentPlayer, replica);
+                    Bonus getBonus = (Bonus) replica.get(tmp);
+                    switch (getBonus.getType()) { //Узнаем что это за бонус
+                        case Bonus_Bomb:
+                            currentPlayer.setMaxBombs(currentPlayer.getMaxBombs() + 1);
+                            break;
+                        case Bonus_Fire:
+                            currentPlayer.setBombPower(currentPlayer.getBombPower() + 1);
+                            break;
+                        case Bonus_Speed:
+                            currentPlayer.setVelocity(currentPlayer.getVelocity() * 2);
+                            break;
+                        default:
+                            break;
+                    }
+                    replica.remove(tmp);
                 }
             }
 
-            if (gameObject instanceof Bomb) { //начинаем работать с бомбами
+            /*if (gameObject instanceof Bomb) { //начинаем работать с бомбами
                 if (!(((Bomb) gameObject).getLifeTime() == 0)) { //если эта бомба еще не взорвалась
                     ((Bomb) gameObject).decrementLifeTime(); //отнимем время до взрыва
                 } else { //если взорвалась то
@@ -215,14 +238,14 @@ public class GameMechanics {
 
                     for (GameObject boxObject : replica.values()) { //пройдем по реплике в поисках жертв
                         if ((boxObject instanceof Box) | (boxObject instanceof Wall)) { //упростим прогон, пробежавшись только по коробкам
-                            for (int i = 1; i <= ((Bomb) gameObject).getRangeExplosion(); i++) { //надо узнать силу взрыва
+                            for (int i = 1; i <= ((Bomb) gameObject).getBombPower(); i++) { //надо узнать силу взрыва
                                 for (int j = 1; j <= 4; j++) { //взрыв на все 4 стороны
                                     switch (j) {
                                         case 1: //если идет вверх
                                             if (up) {
                                                 Point currentPoint = new Point(epicenterX, epicenterY + i * brickSize);//сместились вверх от эпицентра, в зависимости от глубины взрыва
                                                 if (mechanicsSubroutines.createExplosions(currentPoint, gameObject, replica)) {
-                                                    replica.put(gameSession.getInc(), new Explosion(gameSession.getId(), currentPoint)); //место не занято, отрисуем взрыв
+                                                    replica.put(idGenerator.getAndIncrement(), new Explosion(idGenerator.get(), currentPoint)); //место не занято, отрисуем взрыв
                                                 } else {
                                                     up = false; //взрыв был потрачен либо в стену, либо в коробку, дальше взрыв не пойдет
                                                 }
@@ -232,7 +255,7 @@ public class GameMechanics {
                                             if (down) {
                                                 Point currentPoint = new Point(epicenterX, epicenterY - i * brickSize);
                                                 if (mechanicsSubroutines.createExplosions(currentPoint, gameObject, replica)) {
-                                                    replica.put(gameSession.getInc(), new Explosion(gameSession.getId(), currentPoint));
+                                                    replica.put(idGenerator.getAndIncrement(), new Explosion(idGenerator.get(), currentPoint));
                                                 } else {
                                                     down = false;
                                                 }
@@ -242,7 +265,7 @@ public class GameMechanics {
                                             if (left) {
                                                 Point currentPoint = new Point(epicenterX - i * brickSize, epicenterY);
                                                 if (mechanicsSubroutines.createExplosions(currentPoint, gameObject, replica)) {
-                                                    replica.put(gameSession.getInc(), new Explosion(gameSession.getId(), currentPoint));
+                                                    replica.put(idGenerator.getAndIncrement(), new Explosion(idGenerator.get(), currentPoint));
                                                 } else {
                                                     left = false;
                                                 }
@@ -252,7 +275,7 @@ public class GameMechanics {
                                             if (right) {
                                                 Point currentPoint = new Point(epicenterX + i * brickSize, epicenterY);
                                                 if (mechanicsSubroutines.createExplosions(currentPoint, gameObject, replica)) {
-                                                    replica.put(gameSession.getInc(), new Explosion(gameSession.getId(), currentPoint));
+                                                    replica.put(idGenerator.getAndIncrement(), new Explosion(idGenerator.get(), currentPoint));
                                                 } else {
                                                     right = false;
                                                 }
@@ -281,8 +304,29 @@ public class GameMechanics {
                         }
                     }
                 }
-            }
+            }*/
         }
-        return replica;
+    }
+
+
+    private List<Point> setSpawnPositions() {   //only default realisation now, may be expanded for more spawn options
+        return null;
+    }
+
+    public void setTickables(Set<Tickable> tickables) {
+        this.tickables = tickables;
+    }
+
+    public void registerTickable(Tickable tickable) {
+        tickables.add(tickable);
+    }
+
+    public void unregisterTickable(Tickable tickable) {
+        tickables.remove(tickable);
+    }
+
+    public ArrayList<GameObject> getMap() {
+        return map;
     }
 }
+

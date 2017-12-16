@@ -1,29 +1,51 @@
 package bomber.games.gamesession;
 
 import bomber.games.gameobject.*;
+import bomber.games.geometry.Bar;
 import bomber.games.geometry.Point;
 import bomber.games.model.GameObject;
-import bomber.games.model.Movable;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 public class MechanicsSubroutines {
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(MechanicsSubroutines.class);
 
     public boolean collisionCheck(GameObject currentPlayer, Map<Integer, GameObject> replica) {
+        final int brickSize = 31;
+        final int playerSize = 28;
+        int player_X = currentPlayer.getPosition().getX();
+        int player_Y = currentPlayer.getPosition().getY();
 
-
-        //Узнаем всё о переданном нам новом экземпляре игрока
+        Bar playerBar = new Bar(player_X, player_X + playerSize, player_Y, player_Y - playerSize);
         int playerId = currentPlayer.getId();
-        Point playerPosition = currentPlayer.getPosition();
+
 
         //Повторюсь, надо проверить новые координаты игроков на коллизии с другими объектами
         for (GameObject gameObject : replica.values()) {
-            if (!(gameObject.getPosition() == playerPosition) | (gameObject.getId() == playerId)) {
-                return true;
+            int brick_X = gameObject.getPosition().getX();
+            int brick_Y = gameObject.getPosition().getY();
+            Bar brickBar = new Bar(brick_X, brick_X + brickSize, brick_Y, brick_Y - brickSize);
+            if ((!(gameObject instanceof Bonus)) && (!(gameObject instanceof Bomb)) && (!(gameObject instanceof Player))){
+                if ((brickBar.isColliding(playerBar)) && !(gameObject.getId() == playerId)) {
+                        log.info("===================");
+                        log.info("All clear");
+                        return false;
+                }
             }
+
+           if (gameObject instanceof Bomb) {
+               if (!brickBar.isColliding(playerBar)) {
+                   ((Bomb) gameObject).setNewBombStillCollide(false);
+               }
+               if (( !((Bomb) gameObject).isNewBombStillCollide()) &&(brickBar.isColliding(playerBar))) {
+                   return false;
+               }
+           }
         }
-        return false;
+
+
+        return true;
     }
 
     public Integer bonusCheck(Player currentPlayer, Map<Integer, GameObject> replica) {
@@ -32,9 +54,21 @@ public class MechanicsSubroutines {
         int playerId = currentPlayer.getId();
         Point playerPosition = currentPlayer.getPosition();
 
+        final int bonusSize = 31;
+        final int playerSize = 25;
+        int player_X = currentPlayer.getPosition().getX();
+        int player_Y = currentPlayer.getPosition().getY();
+
+        Bar playerBar = new Bar(player_X, player_X + playerSize, player_Y, player_Y - playerSize);
+
+
         for (GameObject gameObject : replica.values()) {
-            if (gameObject instanceof Bomb) {
-                if (gameObject.getPosition() == playerPosition) {
+            int brick_X = gameObject.getPosition().getX();
+            int brick_Y = gameObject.getPosition().getY();
+            Bar brickBar = new Bar(brick_X, brick_X + bonusSize, brick_Y, brick_Y - bonusSize);
+
+            if (gameObject instanceof Bonus) {
+                if (brickBar.isColliding(playerBar)) {
                     return gameObject.getId();
                 }
             }

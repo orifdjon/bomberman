@@ -49,9 +49,9 @@ public final class Wall implements Positionable {
 
     @Override
     public String toString() {
-        return "Wall: {" +
+        return "\nWall: {" +
                 "\nid = " + id +
-                "position" + position +
+                "\nposition" + position +
                 "\n}";
     }
 }

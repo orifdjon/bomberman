@@ -2,35 +2,51 @@ package bomber.games.gameobject;
 
 import bomber.games.geometry.Point;
 import bomber.games.model.Positionable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 import bomber.games.model.Tickable;
 
 
-public final class Bomb implements Tickable, Positionable {
+public final class Bomb implements Tickable, Positionable, Comparable {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Bomb.class);
     private static final long LIFE_TIME = 2500; //after pass death
 
-    private final Point position;
-    private final int id;
-    private int lifeTime = 300; //вообще тут знать бы сколько tick у нас происходит в одну секунду
-    private int rangeExplosion;
+    private Point position;
+    private int id;
+    @JsonIgnore
+    private int lifeTime = 10000;//вообще тут знать бы сколько tick у нас происходит в одну секунду
+    @JsonIgnore
+    private int explosionRange;
+    boolean isNewBombStillCollide = true;
     private final String type = "Bomb";
+    private boolean isAlive = true;
+
+    public boolean getIsAlive() {
+        return isAlive;
+    }
 
 
-    public Bomb(final int id, final Point position, final int rangeExplosion) {
+
+    public Bomb() {
+    }
+
+    public Bomb(final int id, final Point position, final int explosionRange) {
         this.id = id;
         this.position = position;
-        this.lifeTime = 0;
-        this.rangeExplosion = rangeExplosion;
+        this.explosionRange = explosionRange;
 
         log.info("New Bomb: id={}, position({}, {})\n", id, position.getX(), position.getY());
     }
 
     @Override
     public void tick(final long elapsed) {
-        lifeTime += elapsed;
+        lifeTime -= elapsed;
+        log.info("lifeTime " + lifeTime);
+        if (lifeTime <= 0)
+            isAlive = false;
+        log.info("isAlive " + isAlive);
     }
 
     @Override
@@ -64,20 +80,40 @@ public final class Bomb implements Tickable, Positionable {
         return "\nBomb: {" +
                 "\nid = " + id +
                 "\nposition = " + position +
-                "\nrangeExplosion = " + rangeExplosion +
+                "\nrangeExplosion = " + explosionRange +
                 "\nlifeTime = " + lifeTime +
                 "\n}";
     }
 
     public void decrementLifeTime() {
-        this.lifeTime = lifeTime--;
+        --this.lifeTime;
     }
 
     public int getLifeTime() {
         return this.lifeTime;
     }
 
-    public int getRangeExplosion() {
-        return rangeExplosion;
+    public int getExplosionRange() {
+        return explosionRange;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public boolean isNewBombStillCollide() {
+        return isNewBombStillCollide;
+    }
+
+    public void setNewBombStillCollide(boolean newBombStillCollide) {
+        isNewBombStillCollide = newBombStillCollide;
+    }
+
+    @Override
+    public int compareTo(@NotNull Object o) {
+        if (this.id == o.hashCode())
+            return 0;
+        else
+            return -1;
     }
 }

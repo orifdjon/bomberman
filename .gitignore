@@ -9,6 +9,6 @@ build/**
 /matchmaker/out/
 gameserver/build/
 gameserver/out/test/
-
-
 /frontend/build/
+/gradle/
+

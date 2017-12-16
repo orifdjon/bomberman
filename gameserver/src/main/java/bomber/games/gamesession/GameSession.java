@@ -7,29 +7,37 @@ import bomber.games.model.Tickable;
 import bomber.games.util.GeneratorIdSession;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class GameSession implements Tickable {
+public class GameSession {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(GameSession.class);
-    private Map<Integer, GameObject> replica = new HashMap<>();
+    private Map<Integer, GameObject> replica = new ConcurrentHashMap<>();
     private final int id;
     private final AtomicInteger idGenerator = new AtomicInteger(0); // У каждой сессии свой набор id
     private ConcurrentLinkedQueue<PlayerAction> inputQueue = new ConcurrentLinkedQueue<>();
-    private GameMechanics gameMechanics = new GameMechanics();
+    public static final int DEFAULT_SETTING = 0;
+
+    public static final int MAX_PLAYER_IN_GAME = 4;
+    private GameMechanics gameMechanics = new GameMechanics(DEFAULT_SETTING, MAX_PLAYER_IN_GAME);
+
+    private boolean gameOver = false;
 
     public ConcurrentLinkedQueue<PlayerAction> getInputQueue() {
         return inputQueue;
     }
 
-    public GameSession(int id) {
-        gameMechanics.setupGame(replica, idGenerator);
+    public GameSession(int id, Set<Tickable> tickables) {
         this.id = id;
+        gameMechanics.setTickables(tickables);
+    }
+
+    public void setupGameMap() {
+        gameMechanics.setupGame(replica, idGenerator);
+
     }
 
     public Integer getInc() {
@@ -40,26 +48,16 @@ public class GameSession implements Tickable {
         return id;
     }
 
-    public long getIdGenerator() {
-        return idGenerator.get();
+    public AtomicInteger getIdGenerator() {
+        return idGenerator;
     }
 
-    public HashMap<Integer, GameObject> getReplica() {
-        return new HashMap<>(replica);
+    public Map<Integer, GameObject> getReplica() {
+        return replica;
     }
 
-    public void addGameObject(GameObject gameObject) {
-        replica.put(idGenerator.getAndIncrement(), gameObject);
-    }
-
-    @Override
-    public void tick(long elapsed) {
-        log.info("tick");
-        for (GameObject gameObject : replica.values()) {
-            if (gameObject instanceof Tickable) {
-                ((Tickable) gameObject).tick(elapsed);
-            }
-        }
+    public GameMechanics getGameMechanics() {
+        return gameMechanics;
     }
 
     @Override
@@ -76,4 +74,7 @@ public class GameSession implements Tickable {
     }
 
 
+    public boolean isGameOver() {
+        return gameOver;
+    }
 }

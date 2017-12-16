@@ -38,6 +38,7 @@ public class EventHandlerTest {
         }
         PlayerAction playerAction = Json.jsonToPlayerAction(1, json);
         Assert.assertEquals(playerAction.getType(), PlayerAction.EventType.DOWN);
+
     }
 
     @Test

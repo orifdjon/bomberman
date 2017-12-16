@@ -1,18 +1,22 @@
 package bomber.games.geometry;
 
 public class Bar implements Collider {
-    private final int firstCornerX;
-    private final int secondCornerX;
 
+    public final int firstCornerX;
+    public final int secondCornerX;
 
-    private final int secondCornerY;
-    private final int firstCornerY;
+    public final int secondCornerY;
+    public final int firstCornerY;
 
-    Bar(int firstCornerX, int secondCornerX, int firstCornerY, int secondCornerY) {
-        this.firstCornerX = firstCornerX;
-        this.secondCornerX = secondCornerX;
-        this.firstCornerY = firstCornerY;
-        this.secondCornerY = secondCornerY;
+    public Bar(int x1, int x2, int y1, int y2) {
+        int minX = Math.min(x1, x2);
+        firstCornerX = minX;
+        int minY = Math.min(y1, y2);
+        firstCornerY = minY;
+        int maxX = Math.max(x1, x2);
+        secondCornerX = maxX;
+        int maxY = Math.max(y1, y2);
+        secondCornerY = maxY;
     }
 
     public int getFirstCornerX() {
@@ -35,41 +39,22 @@ public class Bar implements Collider {
     public boolean isColliding(Collider other) {
         if (other instanceof Point) {
             Point point = (Point) other;
-
-            return this.firstCornerX <= point.getX() && this.secondCornerX >= point.getX()
-                    && this.firstCornerY <= point.getY() && this.secondCornerY >= point.getY();
-        } else {
-            if (other instanceof Bar) {
-                Bar bar = (Bar) other;
-
-                if (this.firstCornerX <= bar.getFirstCornerX() && this.getSecondCornerX() >= bar.getSecondCornerX()
-                        && this.secondCornerY >= bar.getSecondCornerY() && this.firstCornerY <= bar.getSecondCornerY())
-                    return true;
-
-
-                if (this.firstCornerX <= bar.getFirstCornerX() && this.secondCornerY >= bar.getFirstCornerY()
-                        && this.secondCornerX >= bar.getFirstCornerX() && this.firstCornerY <= bar.getFirstCornerY()
-                        || this.firstCornerX <= bar.getFirstCornerX() && this.firstCornerY <= bar.getSecondCornerY()
-                        && this.secondCornerX >= bar.getFirstCornerX() && this.secondCornerY >= bar.getSecondCornerY()
-                        || this.firstCornerX <= bar.getFirstCornerX() && this.secondCornerY >= bar.getFirstCornerY()
-                        && this.secondCornerX >= bar.getSecondCornerX() && this.firstCornerY <= bar.getSecondCornerY()
-                        || this.firstCornerX <= bar.getSecondCornerX() && this.firstCornerY <= bar.getSecondCornerY()
-                        && this.secondCornerX >= bar.getSecondCornerX() && this.secondCornerY >= bar.getSecondCornerY()
-                        || this.firstCornerX <= bar.getFirstCornerX() && this.secondCornerX >= bar.getSecondCornerX()
-                        && this.firstCornerY >= bar.firstCornerY && this.secondCornerY <= bar.getSecondCornerY())
-                    return true;
-
-                if (this.firstCornerX >= bar.getFirstCornerX() && this.firstCornerY <= bar.getFirstCornerY()
-                        && this.secondCornerX <= bar.getSecondCornerX() && this.secondCornerY >= bar.getSecondCornerY())
-                    return true;
-
-
-            } else
-                return false;
-
-            return false;
+            boolean x1 = ((point.getX() >= firstCornerX) && (point.getX() <= secondCornerX));
+            boolean y1 = ((point.getY() >= firstCornerY) && (point.getY() <= secondCornerY));
+            return x1 && y1;
         }
+        if (other instanceof Bar) {
+            Bar bar = (Bar) other;
+            boolean x1 = ((bar.firstCornerX >= firstCornerX) && (bar.firstCornerX <= secondCornerX));
+            boolean x2 = ((bar.secondCornerX >= firstCornerX) && (bar.secondCornerX <= secondCornerX));
+            boolean y1 = ((bar.firstCornerY >= firstCornerY) && (bar.firstCornerY <= secondCornerY));
+            boolean y2 = ((bar.secondCornerY >= firstCornerY) && (bar.secondCornerY <= secondCornerY));
+            return (x1 || x2) && (y1 || y2);
+        }
+        return false;
     }
+
+
 
 
     @Override

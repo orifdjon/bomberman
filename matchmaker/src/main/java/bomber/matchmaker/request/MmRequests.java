@@ -24,7 +24,7 @@ public class MmRequests {
     public static Response create(final int playerCounter) throws IOException {
         MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
         Request request = new Request.Builder()
-                .post(RequestBody.create(mediaType, "playerCount={" + playerCounter + "}"))
+                .post(RequestBody.create(mediaType, "playerCount=" + playerCounter ))
                 .url(HTTP_PROTOCOL + HOST + PORT_GS + "/game/create")
                 .build();
         return client.newCall(request).execute();
@@ -33,7 +33,7 @@ public class MmRequests {
     public static Response start(final int gameId) throws IOException {
         MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
         Request request = new Request.Builder()
-                .post(RequestBody.create(mediaType, "gameId={" + gameId + "}"))
+                .post(RequestBody.create(mediaType, "gameId=" + gameId))
                 .url(HTTP_PROTOCOL + HOST + PORT_GS + "/game/start")
                 .build();
         return client.newCall(request).execute();

@@ -49,7 +49,7 @@ public final class Box implements Positionable {
 
     @Override
     public String toString() {
-        return "Box: {" +
+        return "\nBox: {" +
                 "\nid = " + id +
                 "\nposition = " + position +
                 "\n}";
