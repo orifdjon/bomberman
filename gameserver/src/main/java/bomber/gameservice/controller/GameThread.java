@@ -30,6 +30,7 @@ public class GameThread implements Runnable {
         this.gameId = gameId;
     }
 
+    
     @Override
     public void run() {
         log.info("Start new thread called game-mechanics with gameId = " + gameId);
