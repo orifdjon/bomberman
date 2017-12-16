@@ -41,7 +41,7 @@ public class StartThread extends Thread {
         while (tryCounter <= MAX_TIMEOUTS + 1
                 && !isStarted) {
             try {
-                playersConnected = Integer.parseInt(MmRequests.checkStatus(gameId).body().string());
+                playersConnected = Integer.parseInt(MmRequests.checkStatus(gameId.intValue()).body().string());
                 if (playersConnected == MAX_PLAYER_IN_GAME) {
                     bomberService.addToDb(gameId, new Date());
                     log.info("Sending a request to start the game with {} out of {} players in it, gameID = {}",

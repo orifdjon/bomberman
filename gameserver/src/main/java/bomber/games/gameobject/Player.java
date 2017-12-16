@@ -26,7 +26,6 @@ public final class Player implements Movable, Comparable {
     private long time;
     @JsonIgnore
     private boolean alive = true;
-
     @JsonIgnore
     private int bombCount = 0;
 

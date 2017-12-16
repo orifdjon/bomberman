@@ -2,6 +2,7 @@ package bomber.gameservice.controller;
 
 
 import bomber.games.gameobject.Bomb;
+import bomber.games.gameobject.Explosion;
 import bomber.games.gameobject.Player;
 import bomber.games.gameobject.Explosion;
 import bomber.games.gamesession.GameSession;
@@ -68,14 +69,17 @@ public class GameThread implements Runnable {
             if (tickable instanceof Player)
                 gameOverCondition--;
             tickable.tick(elapsed);
-                if (tickable instanceof Bomb || tickable instanceof Explosion) {
-                    if (!tickable.isAlive()) {
-                        log.info("it IS'NT alive");
-                        unregisterTickable(tickable);
+
+            if (tickable instanceof Bomb || tickable instanceof Explosion) {
+                if (!tickable.isAlive()) {
+                    if (tickable instanceof Bomb) {
+                        Player tmpPlayer = (Player) gameSession.getReplica().get(((Bomb) tickable).getPlayerId());
+                        tmpPlayer.decBombCount();
                     }
+                    log.info("it IS'NT alive");
+                    unregisterTickable(tickable);
                 }
             }
-
         }
         if (!(gameOverCondition == 1)) {
             if (!gameSession.getInputQueue().isEmpty()) {

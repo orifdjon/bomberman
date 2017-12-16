@@ -16,7 +16,7 @@ public final class Bomb implements Tickable, Positionable, Comparable {
     private Point position;
     private int id;
     private final String type = "Bomb";
-
+    private int playerId;
     @JsonIgnore
     private int lifeTime = 1000;//вообще тут знать бы сколько tick у нас происходит в одну секунду
     @JsonIgnore
@@ -24,10 +24,7 @@ public final class Bomb implements Tickable, Positionable, Comparable {
     @JsonIgnore
     boolean isNewBombStillCollide = true;
     @JsonIgnore
-    private int playerId;
-    @JsonIgnore
     private boolean alive = true;
-
 
 
     public Bomb() {
@@ -112,10 +109,12 @@ public final class Bomb implements Tickable, Positionable, Comparable {
         return type;
     }
 
+    @JsonIgnore
     public boolean isNewBombStillCollide() {
         return isNewBombStillCollide;
     }
 
+    @JsonIgnore
     public void setNewBombStillCollide(boolean newBombStillCollide) {
         isNewBombStillCollide = newBombStillCollide;
     }
