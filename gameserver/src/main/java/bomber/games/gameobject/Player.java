@@ -24,6 +24,8 @@ public final class Player implements Movable, Comparable {
     private final int playerSize = 27;
     @JsonIgnore
     private long time;
+    @JsonIgnore
+    private boolean alive = true;
 
     @JsonIgnore
     private int bombCount = 0;
@@ -103,6 +105,11 @@ public final class Player implements Movable, Comparable {
     public void tick(long elapsed) {
         time = elapsed;
 
+    }
+
+    @Override
+    public boolean isAlive() {
+        return alive;
     }
 
     public int getBombPower() {
