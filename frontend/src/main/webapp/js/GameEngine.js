@@ -67,7 +67,7 @@ GameEngine = Class.extend({
             {id: "tile_wood", src: "img/tile_wood.png"},
             {id: "bomb", src: "img/bomb.png"},
             {id: "fire", src: "img/fire.png"},
-            {id: "bonuses", src: "img/bonuses.png"}
+            {id: "bonuses", src: "img/bonus.png"}
         ]);
 
         createjs.Sound.addEventListener("fileload", this.onSoundLoaded);

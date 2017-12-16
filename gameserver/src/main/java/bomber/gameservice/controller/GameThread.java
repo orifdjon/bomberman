@@ -4,6 +4,7 @@ package bomber.gameservice.controller;
 import bomber.games.gameobject.Bomb;
 import bomber.games.gameobject.Explosion;
 import bomber.games.gameobject.Player;
+import bomber.games.gameobject.Explosion;
 import bomber.games.gamesession.GameSession;
 import bomber.games.model.Tickable;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ public class GameThread implements Runnable {
         this.gameId = gameId;
     }
 
+    
     @Override
     public void run() {
         log.info("Start new thread called game-mechanics with gameId = " + gameId);
@@ -67,6 +69,7 @@ public class GameThread implements Runnable {
             if (tickable instanceof Player)
                 gameOverCondition--;
             tickable.tick(elapsed);
+
             if (tickable instanceof Bomb || tickable instanceof Explosion) {
                 if (!tickable.isAlive()) {
                     if (tickable instanceof Bomb) {
@@ -78,7 +81,6 @@ public class GameThread implements Runnable {
                 }
             }
         }
-//        tickables.forEach(tickable -> tickable.tick(elapsed));
         if (!(gameOverCondition == 1)) {
             if (!gameSession.getInputQueue().isEmpty()) {
                 gameSession.getGameMechanics().readInputQueue(gameSession.getInputQueue());
@@ -98,6 +100,5 @@ public class GameThread implements Runnable {
     public void unregisterTickable(Tickable tickable) {
         tickables.remove(tickable);
     }
-
 
 }

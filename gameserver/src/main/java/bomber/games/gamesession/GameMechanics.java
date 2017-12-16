@@ -43,14 +43,16 @@ public class GameMechanics {
 
     public void setupGame(Map<Integer, GameObject> replica, AtomicInteger idGenerator) {
 
+        idGenerator.getAndIncrement();
+        replica.put(idGenerator.get(), new Explosion(idGenerator.get(),
+                new Point(2*brickSize, 2 * brickSize)));
+        idGenerator.getAndIncrement();
+        replica.put(idGenerator.get(), new Bonus(idGenerator.get(),
+                new Point(brickSize, 2 * brickSize), Bonus.Type.Bonus_Speed));
 
-//        idGenerator.getAndIncrement();
-//        replica.put(idGenerator.get(), new Bonus(idGenerator.get(),
-//                new Point(brickSize, 2 * brickSize), Bonus.Type.Bonus_Speed));
-//
-//        idGenerator.getAndIncrement();
-//        replica.put(idGenerator.get(), new Bonus(idGenerator.get(),
-//                new Point(2*brickSize, brickSize), Bonus.Type.Bonus_Bomb));
+        idGenerator.getAndIncrement();
+        replica.put(idGenerator.get(), new Bonus(idGenerator.get(),
+                new Point(2 * brickSize, brickSize), Bonus.Type.Bonus_Bomb));
 
         BonusRandom bonusRandom = new BonusRandom(playersCount);
         List<Point> playerPositions = SpawnPositionsCollection.getDefaultPositions();
@@ -177,6 +179,8 @@ public class GameMechanics {
                             }
                             break;
                         case BOMB:
+                        
+                  
                             if (currentPlayer.getBombCount() < currentPlayer.getMaxBombs()) {
                                 idGenerator.getAndIncrement();
                                 Bomb tmpBomb = new Bomb(idGenerator.get(),
@@ -187,6 +191,7 @@ public class GameMechanics {
                                 registerTickable(tmpBomb);
                                 currentPlayer.incBombCount();
                             }
+
                             break;
                         default:
                             break;
@@ -287,12 +292,14 @@ public class GameMechanics {
                                         break;
                                 }
                             }
+
                             //}
                         }
                     }
                 }
 
             }
+
             if (gameObject instanceof Explosion) { //убираем Explosion с карты
                 if (!((Explosion) gameObject).isAlive()) {
                     replica.remove(gameObject.getId());

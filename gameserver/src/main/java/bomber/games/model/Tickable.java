@@ -9,6 +9,7 @@ public interface Tickable {
      */
     void tick(long elapsed);
 
+
     /**
      * @return true if tickable object still exists
      */
