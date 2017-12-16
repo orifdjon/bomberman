@@ -16,7 +16,7 @@ public final class Bomb implements Tickable, Positionable, Comparable {
     private Point position;
     private int id;
     @JsonIgnore
-    private int lifeTime = 1000;//вообще тут знать бы сколько tick у нас происходит в одну секунду
+    private int lifeTime = 10000;//вообще тут знать бы сколько tick у нас происходит в одну секунду
     @JsonIgnore
     private int explosionRange;
     boolean isNewBombStillCollide = true;

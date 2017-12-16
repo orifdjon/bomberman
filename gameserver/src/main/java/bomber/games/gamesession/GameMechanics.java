@@ -188,8 +188,8 @@ public class GameMechanics {
                                     currentPlayer.getPosition().getY());
                             Bomb tmpBomb = new Bomb(idGenerator.get(), bombPosition,
                                     currentPlayer.getBombPower());
-                            idGenerator.getAndIncrement();
                             replica.put(idGenerator.get(), tmpBomb);
+                            idGenerator.getAndIncrement();
                             log.info("Bomb must be here");
                             log.info("========================================");
                             log.info(Json.replicaToJson(replica));
