@@ -24,21 +24,26 @@ public final class Bomb implements Tickable, Positionable, Comparable {
     @JsonIgnore
     boolean isNewBombStillCollide = true;
     @JsonIgnore
+    private int playerId;
+    @JsonIgnore
     private boolean alive = true;
-
-
 
 
 
     public Bomb() {
     }
 
-    public Bomb(final int id, final Point position, final int explosionRange) {
+    public Bomb(final int id, final Point position, final int explosionRange, final int playerId) {
         this.id = id;
         this.position = position;
         this.explosionRange = explosionRange;
+        this.playerId = playerId;
 
         log.info("New Bomb: id={}, position({}, {})\n", id, position.getX(), position.getY());
+    }
+
+    public int getPlayerId() {
+        return playerId;
     }
 
     @Override

@@ -21,10 +21,33 @@ public class GameSession {
     private ConcurrentLinkedQueue<PlayerAction> inputQueue = new ConcurrentLinkedQueue<>();
     public static final int DEFAULT_SETTING = 0;
 
+
+
+    private AtomicInteger connectedPlayerCount = new AtomicInteger(0);
     public static final int MAX_PLAYER_IN_GAME = 4;
     private GameMechanics gameMechanics = new GameMechanics(DEFAULT_SETTING, MAX_PLAYER_IN_GAME);
 
+    public int getConnectedPlayerCount() {
+        return connectedPlayerCount.intValue();
+    }
+
+    public void incConnectedPlayerCount() {
+        connectedPlayerCount.incrementAndGet();
+    }
+
+    public void decConnectedPlayerCount() {
+        connectedPlayerCount.decrementAndGet();
+    }
+
     private boolean gameOver = false;
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
+
+    public boolean getGameOver() {
+        return gameOver;
+    }
 
     public ConcurrentLinkedQueue<PlayerAction> getInputQueue() {
         return inputQueue;
