@@ -22,6 +22,7 @@ public final class Bomb implements Tickable, Positionable, Comparable {
     boolean isNewBombStillCollide = true;
     private final String type = "Bomb";
     private boolean isAlive = true;
+    private int playerId;
 
     public boolean getIsAlive() {
         return isAlive;
@@ -32,12 +33,17 @@ public final class Bomb implements Tickable, Positionable, Comparable {
     public Bomb() {
     }
 
-    public Bomb(final int id, final Point position, final int explosionRange) {
+    public Bomb(final int id, final Point position, final int explosionRange, final int playerId) {
         this.id = id;
         this.position = position;
         this.explosionRange = explosionRange;
+        this.playerId = playerId;
 
         log.info("New Bomb: id={}, position({}, {})\n", id, position.getX(), position.getY());
+    }
+
+    public int getPlayerId() {
+        return playerId;
     }
 
     @Override

@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequestMapping("/game")
 public class GameController {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(GameController.class);
-    private static AtomicInteger connectedPlayerCount = new AtomicInteger(4);
     static Map<Long, GameSession> gameSessionMap = new ConcurrentHashMap<>();
     /**
      * curl -i localhost:8090/game/create
@@ -35,11 +34,12 @@ public class GameController {
 
     @RequestMapping(
             path = "/checkstatus",
-            method = RequestMethod.GET,
-            produces = MediaType.TEXT_PLAIN_VALUE)
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<String> checkStatus() {
-        return ResponseEntity.ok().body(Integer.toString(connectedPlayerCount.intValue()));//возращает gameId
+    public ResponseEntity<String> checkStatus(@RequestParam("gameId") String gameIdString) {
+        return ResponseEntity.ok().body(Integer.toString(
+                gameSessionMap.get(Long.parseLong(gameIdString)).getConnectedPlayerCount()));//возращает gameId
     }
 
     @RequestMapping(
@@ -71,14 +71,6 @@ public class GameController {
         return ResponseEntity.ok().body(gameIdString); //возращает gameId
     }
 
-    public static int getConnectedPlayerCount() {
-        return connectedPlayerCount.intValue();
-    }
-
-    public static synchronized void setConnectedPlayerCount(int value) {
-        connectedPlayerCount.set(value);
-    }
-
     private long add() {
         final long gameId;
         synchronized (this) {
@@ -92,6 +84,4 @@ public class GameController {
     private void start(final long gameId) {
         new Thread(new GameThread(gameId), "game-mechanics with gameId = " + gameId).start();// создаем новый тред для игры c gameId
     }
-
-
 }
