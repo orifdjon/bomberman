@@ -39,11 +39,11 @@ public class MmRequests {
         return client.newCall(request).execute();
     }
 
-    public static Response checkStatus(final int gameId) throws IOException {
-        MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
+    public static Response checkStatus() throws IOException {
         Request request = new Request.Builder()
-                .post(RequestBody.create(mediaType, "gameId=" + gameId))
+                .get()
                 .url(HTTP_PROTOCOL + HOST + PORT_GS + "/game/checkstatus")
+                .addHeader("host", HOST + PORT_GS)
                 .build();
         return client.newCall(request).execute();
     }

@@ -38,12 +38,11 @@ public final class Json {
 
 
     @NotNull
-    public static String replicaToJson(@NotNull final Map<Integer,? extends GameObject> map, final boolean gameOver) { //отправка Replic через JSON
+    public static String replicaToJson(@NotNull final Map<Integer,? extends GameObject> map) { //отправка Replic через JSON
         Replica replica = new Replica();
         DataReplica dataReplica = replica.getData();
         List<GameObject> list = new ArrayList<>(map.values());
         dataReplica.setObjects(list);
-        dataReplica.setGameOver(gameOver);
         return JsonHelper.toJson(replica);
     }
 

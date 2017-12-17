@@ -2,6 +2,6 @@
   "topic":"MOVE",
   "data":
     {
-        "eventType":"DOWN"
+        "type":"DOWN"
     }
 }
