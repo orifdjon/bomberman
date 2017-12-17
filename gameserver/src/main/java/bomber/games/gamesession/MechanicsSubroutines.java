@@ -23,7 +23,7 @@ public class MechanicsSubroutines {
 
     public boolean collisionCheck(GameObject currentPlayer, Map<Integer, GameObject> replica) {
         final int brickSize = 31;
-        final int playerSize = 27;
+        final int playerSize = 25;
         int playerX = currentPlayer.getPosition().getX();
         int playerY = currentPlayer.getPosition().getY();
 
