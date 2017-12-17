@@ -23,7 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GameController {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(GameController.class);
 
-    public final static Map<Long, GameSession> gameSessionMap = new ConcurrentHashMap<>();
+    public static final Map<Long, GameSession> gameSessionMap = new ConcurrentHashMap<>();
+
     /**
      * curl -i localhost:8090/game/create
      */
@@ -40,8 +41,9 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<String> checkStatus(@RequestParam("gameId") String gameId) {
         synchronized (this) {
-        return ResponseEntity.ok().body(Integer.toString
-                (gameSessionMap.get(Long.parseLong(gameId)).getConnectedPlayerCount()));//возращает gameId
+            return ResponseEntity.ok()
+                    .body(Integer.toString(gameSessionMap.get(Long.parseLong(gameId)).getConnectedPlayerCount()));
+            //возращает gameId
         }
     }
 
@@ -70,7 +72,7 @@ public class GameController {
         if (!gameSessionMap.containsKey(gameId)) {
             log.error("Don't have games to run gameId={}", gameId);
 
-                return ResponseEntity.badRequest().body("");
+            return ResponseEntity.badRequest().body("");
         }
         start(gameId);
         return ResponseEntity.ok().body(gameIdString); //возращает gameId
@@ -79,8 +81,8 @@ public class GameController {
 
     private long add() {
         final long gameId;
-            GeneratorIdSession.getAndIncrementId();
-            gameId = GeneratorIdSession.getIdGenerator();
+        GeneratorIdSession.getAndIncrementId();
+        gameId = GeneratorIdSession.getIdGenerator();
         gameSessionMap.put(gameId, new GameSession(0, null));
         return gameId;
     }

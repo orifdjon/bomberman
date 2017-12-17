@@ -156,7 +156,6 @@ public class GameMechanics {
             //подняли вспомогательные методы
 
 
-
             if (gameObject instanceof Player) {
                 Player currentPlayer = ((Player) gameObject);
                 Point previosPos = currentPlayer.getPosition();
@@ -204,7 +203,6 @@ public class GameMechanics {
                                 replica.put(idGenerator.get(), tmpBomb);
                                 log.info("Bomb must be here");
                                 log.info("========================================");
-//                                log.info(Json.replicaToJson(replica));
                                 registerTickable(tmpBomb);
                                 currentPlayer.incBombCount();
                             }
@@ -277,7 +275,8 @@ public class GameMechanics {
                                                     idGenerator.getAndIncrement();
                                                     Explosion tmpExpl = new Explosion(idGenerator.get(),
                                                             currentPoint);
-                                                    replica.put(idGenerator.get(), tmpExpl); //место не занято, отрисуем взрыв
+                                                    replica.put(idGenerator.get(), tmpExpl);
+                                                    //место не занято, отрисуем взрыв
                                                     registerTickable(tmpExpl);
                                                 } else {
                                                     up = false;
@@ -294,7 +293,8 @@ public class GameMechanics {
                                                     idGenerator.getAndIncrement();
                                                     Explosion tmpExpl = new Explosion(idGenerator.get(),
                                                             currentPoint);
-                                                    replica.put(idGenerator.get(), tmpExpl); //место не занято, отрисуем взрыв
+                                                    replica.put(idGenerator.get(), tmpExpl);
+                                                    //место не занято, отрисуем взрыв
                                                     registerTickable(tmpExpl);
                                                 } else {
                                                     down = false;
@@ -309,7 +309,8 @@ public class GameMechanics {
                                                     idGenerator.getAndIncrement();
                                                     Explosion tmpExpl = new Explosion(idGenerator.get(),
                                                             currentPoint);
-                                                    replica.put(idGenerator.get(), tmpExpl); //место не занято, отрисуем взрыв
+                                                    replica.put(idGenerator.get(), tmpExpl);
+                                                    //место не занято, отрисуем взрыв
                                                     registerTickable(tmpExpl);
                                                 } else {
                                                     left = false;
@@ -324,7 +325,8 @@ public class GameMechanics {
                                                     idGenerator.getAndIncrement();
                                                     Explosion tmpExpl = new Explosion(idGenerator.get(),
                                                             currentPoint);
-                                                    replica.put(idGenerator.get(), tmpExpl); //место не занято, отрисуем взрыв
+                                                    replica.put(idGenerator.get(), tmpExpl);
+                                                    //место не занято, отрисуем взрыв
                                                     registerTickable(tmpExpl);
                                                 } else {
                                                     right = false;

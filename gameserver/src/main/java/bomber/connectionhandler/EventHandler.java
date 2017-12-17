@@ -27,12 +27,13 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
     public static final String NAME_ARG = "name";
 
     @Override
-    public synchronized void  afterConnectionEstablished(final WebSocketSession session) throws Exception {
+    public synchronized void afterConnectionEstablished(final WebSocketSession session) throws Exception {
         super.afterConnectionEstablished(session);
 
         //connected player count?
-        connectionPool.put(session.hashCode(), uriSessionToPlayer(session.getUri(), session));//due to realisation player
-                                                                                        //Id matches to session hashcode
+        connectionPool.put(session.hashCode(), uriSessionToPlayer(session.getUri(), session));
+        //due to realisation player
+        //Id matches to session hashcode
         GameController.gameSessionMap.get(uriToGameId(session.getUri())).incConnectedPlayerCount();
     }
 
@@ -69,7 +70,7 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
         }
     }
 
-    public synchronized static void sendPossess(final int playerId) throws IOException {
+    public static synchronized  void sendPossess(final int playerId) throws IOException {
         connectionPool.get(playerId).getWebSocketSession().sendMessage(
                 new TextMessage(Json.possesToJson(playerId)));
     }

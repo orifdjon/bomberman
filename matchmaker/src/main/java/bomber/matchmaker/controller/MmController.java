@@ -64,18 +64,18 @@ public class MmController {
             log.info("Adding a new player to the list: name={}", name);
         } else {
             log.info("Adding a new player to the list: name={}", name);
-                ConnectionQueue.getInstance().offer(new Connection(idGenerator.getAndIncrement(), name));
-                if (ConnectionQueue.getInstance().size() == MAX_PLAYER_IN_GAME) {
-                    startThread.start(); //starts our thread
-                    log.info("gameId = {}", gameId);
-                    synchronized (this) {
-                        startThread.suspend();
-                    }
-                }
-                log.info("Responding with gameID to the player={}, gameID={}", name, gameId);
+            ConnectionQueue.getInstance().offer(new Connection(idGenerator.getAndIncrement(), name));
+            if (ConnectionQueue.getInstance().size() == MAX_PLAYER_IN_GAME) {
+                startThread.start(); //starts our thread
+                log.info("gameId = {}", gameId);
                 synchronized (this) {
-                    startThread.resume();
+                    startThread.suspend();
                 }
+            }
+            log.info("Responding with gameID to the player={}, gameID={}", name, gameId);
+            synchronized (this) {
+                startThread.resume();
+            }
         }
         return ResponseEntity.ok().body(gameId.toString());
     }

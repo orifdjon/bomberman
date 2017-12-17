@@ -82,16 +82,6 @@ public class GameThread implements Runnable {
         }
 
 
-//        if (!gameSession.getInputQueue().isEmpty()) {
-//            gameSession.getGameMechanics().readInputQueue(gameSession.getInputQueue());
- //           gameSession.setGameOver(gameSession.getGameMechanics().doMechanic(gameSession.getReplica(),
-  //                  gameSession.getIdGenerator()));
-    //        gameSession.getGameMechanics().clearInputQueue(gameSession.getInputQueue());
-    //        log.info("========================================");
-    //        log.info(Json.replicaToJson(gameSession.getReplica()));
-     //  } else {
-      //      gameSession.setGameOver(gameSession.getGameMechanics().doMechanic(gameSession.getReplica(),
-       //             gameSession.getIdGenerator()));
 
 
         if (gameOverCondition == (GameSession.MAX_PLAYER_IN_GAME - 1)) {
@@ -104,7 +94,7 @@ public class GameThread implements Runnable {
             if (!gameSession.getInputQueue().isEmpty()) {
                 gameSession.getGameMechanics().readInputQueue(gameSession.getInputQueue());
                 gameSession.getGameMechanics().doMechanic(gameSession.getReplica(), gameSession.getIdGenerator(),
-                         tickables);
+                        tickables);
                 gameSession.getGameMechanics().clearInputQueue(gameSession.getInputQueue());
                 log.info("========================================");
                 log.info(Json.replicaToJson(gameSession.getReplica(), gameSession.isGameOver()));
