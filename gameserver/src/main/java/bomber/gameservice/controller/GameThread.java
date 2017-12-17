@@ -77,6 +77,9 @@ public class GameThread implements Runnable {
             gameSession.getGameMechanics().clearInputQueue(gameSession.getInputQueue());
             log.info("========================================");
             log.info(Json.replicaToJson(gameSession.getReplica()));
+        } else {
+            gameSession.setGameOver(gameSession.getGameMechanics().doMechanic(gameSession.getReplica(),
+                    gameSession.getIdGenerator()));
         }
 
     }
