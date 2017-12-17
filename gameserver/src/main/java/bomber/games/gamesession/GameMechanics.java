@@ -201,16 +201,19 @@ public class GameMechanics {
                             }
                             break;
                         case BOMB:
-                            Point bombPosition = new Point(currentPlayer.getPosition().getX(),
-                                    currentPlayer.getPosition().getY());
-                            idGenerator.getAndIncrement();
-                            Bomb tmpBomb = new Bomb(idGenerator.get(), bombPosition,
-                                    currentPlayer.getBombPower());
-                            replica.put(idGenerator.get(), tmpBomb);
-                            log.info("Bomb must be here");
-                            log.info("========================================");
-                            log.info(Json.replicaToJson(replica));
-                            registerTickable(tmpBomb);
+                            if (currentPlayer.getBombCount() < currentPlayer.getMaxBombs()) {
+                                Point bombPosition = new Point(currentPlayer.getPosition().getX(),
+                                        currentPlayer.getPosition().getY());
+                                idGenerator.getAndIncrement();
+                                Bomb tmpBomb = new Bomb(idGenerator.get(), bombPosition,
+                                        currentPlayer.getBombPower(), currentPlayer.getId());
+                                replica.put(idGenerator.get(), tmpBomb);
+                                log.info("Bomb must be here");
+                                log.info("========================================");
+//                                log.info(Json.replicaToJson(replica));
+                                registerTickable(tmpBomb);
+                                currentPlayer.incBombCount();
+                            }
                             break;
                         default:
                             break;
@@ -227,7 +230,7 @@ public class GameMechanics {
                             currentPlayer.setBombPower(currentPlayer.getBombPower() + 1);
                             break;
                         case Bonus_Speed:
-                            currentPlayer.setVelocity(currentPlayer.getVelocity() * 2);
+                            currentPlayer.setVelocity(currentPlayer.getVelocity() + 0.025);
                             break;
                         default:
                             break;
@@ -262,8 +265,10 @@ public class GameMechanics {
                             boolean down = true;
                             boolean left = true;
                             boolean right = true;
+
                             //это все индикаторы, отслеживающие был ли уже взрыв объекта по одной
                             // их 4х сторон взрыва, чего то более изящного не придумал
+
 
                             for (int power = 1; power <= (currentBomb).getExplosionRange(); power++) {
                                 //надо узнать силу взрыва

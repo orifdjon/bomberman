@@ -38,8 +38,9 @@ public class StartThread extends Thread {
                 && !isStarted) {
             try {
                 synchronized (gameId) {
-                    playersConnected = Integer.parseInt(MmRequests.checkStatus().body().string());
+                    playersConnected = Integer.parseInt(MmRequests.checkStatus(gameId).body().string());
                 }
+
                 if (playersConnected == MAX_PLAYER_IN_GAME) {
                     bomberService.addToDb(gameId, new Date());
                     log.info("Sending a request to start the game with {} out of {} players in it, gameID = {}",

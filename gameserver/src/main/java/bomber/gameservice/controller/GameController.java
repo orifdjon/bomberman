@@ -22,9 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequestMapping("/game")
 public class GameController {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(GameController.class);
-    private static final AtomicInteger connectedPlayerCount = new AtomicInteger(4);
-    static final Map<Long, GameSession> gameSessionMap = new ConcurrentHashMap<>();
 
+    public final static Map<Long, GameSession> gameSessionMap = new ConcurrentHashMap<>();
     /**
      * curl -i localhost:8090/game/create
      */
@@ -36,12 +35,13 @@ public class GameController {
 
     @RequestMapping(
             path = "/checkstatus",
-            method = RequestMethod.GET,
+            method = RequestMethod.POST,
             produces = MediaType.TEXT_PLAIN_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<String> checkStatus() {
+    public ResponseEntity<String> checkStatus(@RequestParam("gameId") String gameId) {
         synchronized (this) {
-            return ResponseEntity.ok().body(Integer.toString(connectedPlayerCount.intValue()));//возращает gameId
+        return ResponseEntity.ok().body(Integer.toString
+                (gameSessionMap.get(Long.parseLong(gameId)).getConnectedPlayerCount()));//возращает gameId
         }
     }
 
