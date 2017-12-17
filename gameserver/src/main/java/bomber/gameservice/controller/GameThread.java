@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.LockSupport;
 
 import static bomber.gameservice.controller.GameController.gameSessionMap;
@@ -22,8 +23,8 @@ public class GameThread implements Runnable {
     private final long gameId;
     private static final int FPS = 60;
     private static final long FRAME_TIME = 1000 / FPS;
-    private Set<Tickable> tickables = new ConcurrentSkipListSet<>();
-    private long tickNumber = 0;
+    private final Set<Tickable> tickables = new ConcurrentSkipListSet<>();
+    private final AtomicLong tickNumber = new AtomicLong(0);
     private GameSession gameSession;
 
     public GameThread(final long gameId) {
@@ -33,10 +34,12 @@ public class GameThread implements Runnable {
     @Override
     public void run() {
         log.info("Start new thread called game-mechanics with gameId = " + gameId);
-        gameSession = new GameSession((int) gameId, tickables);
-        log.info("Game has been init gameId={}", gameId);
-        gameSession.setupGameMap();
-        gameSessionMap.put(gameId, gameSession);
+        synchronized (this) {
+            gameSession = new GameSession((int) gameId, tickables);
+            log.info("Game has been init gameId={}", gameId);
+            gameSession.setupGameMap();
+            gameSessionMap.put(gameId, gameSession);
+        }
         while (!Thread.currentThread().isInterrupted() || !gameSession.isGameOver()) {
 
             long started = System.currentTimeMillis();
@@ -47,15 +50,16 @@ public class GameThread implements Runnable {
             } else {
                 log.warn("tick lag {} ms", elapsed - FRAME_TIME);
             }
-            tickNumber++;
+
+            tickNumber.incrementAndGet();
 
         }
     }
 
 
-    private void act(long elapsed) {
-        try {
+    private synchronized void act(long elapsed) {
 
+        try {
             EventHandler.sendReplica(gameSession.getId());
         } catch (IOException e) {
             log.error("Error to send REPLICA");
@@ -79,7 +83,7 @@ public class GameThread implements Runnable {
 
     }
 
-    public long getTickNumber() {
+    public AtomicLong getTickNumber() {
         return tickNumber;
     }
 

@@ -12,27 +12,27 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 @Component
 public class EventHandler extends TextWebSocketHandler implements WebSocketHandler {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(EventHandler.class);
-    private static final Map<Integer, Player> connectionPool = new HashMap<>();
+    private static final Map<Integer, Player> connectionPool = new ConcurrentHashMap<>();
     public static final String GAMEID_ARG = "gameId";
     public static final String NAME_ARG = "name";
 
     @Override
-    public void afterConnectionEstablished(final WebSocketSession session) throws Exception {
+    public synchronized void  afterConnectionEstablished(final WebSocketSession session) throws Exception {
         super.afterConnectionEstablished(session);
         connectionPool.put(session.hashCode(), uriSessionToPlayer(session.getUri(), session));
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    protected synchronized void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 
         log.info(message.getPayload());
         log.info("=============================================================================");
@@ -42,7 +42,7 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
+    public synchronized void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         System.out.println("here");
         System.out.println(session.hashCode());
         connectionPool.remove(session.hashCode());
@@ -63,7 +63,7 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
         }
     }
 
-    public static void sendPossess(final int playerId) throws IOException {
+    public synchronized static void sendPossess(final int playerId) throws IOException {
         connectionPool.get(playerId).getWebSocketSession().sendMessage(
                 new TextMessage(Json.possesToJson(playerId)));
     }

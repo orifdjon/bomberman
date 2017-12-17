@@ -14,16 +14,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class GameSession {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(GameSession.class);
-    private Map<Integer, GameObject> replica = new ConcurrentHashMap<>();
+    private final Map<Integer, GameObject> replica = new ConcurrentHashMap<>();
     private final int id;
     private final AtomicInteger idGenerator = new AtomicInteger(0); // У каждой сессии свой набор id
-    private ConcurrentLinkedQueue<PlayerAction> inputQueue = new ConcurrentLinkedQueue<>();
-    public static final int DEFAULT_SETTING = 0;
+    private final ConcurrentLinkedQueue<PlayerAction> inputQueue = new ConcurrentLinkedQueue<>();
+    private static final int DEFAULT_SETTING = 0;
 
-    public static final int MAX_PLAYER_IN_GAME = 4;
+    private static final int MAX_PLAYER_IN_GAME = 4;
     private GameMechanics gameMechanics = new GameMechanics(DEFAULT_SETTING, MAX_PLAYER_IN_GAME);
 
-    private boolean gameOver = false;
+    private volatile boolean gameOver = false;
 
     public ConcurrentLinkedQueue<PlayerAction> getInputQueue() {
         return inputQueue;
