@@ -42,7 +42,8 @@ public class GameThread implements Runnable {
             gameSessionMap.put(gameId, gameSession);
         }
         while (!Thread.currentThread().isInterrupted() || !gameSession.isGameOver()) {
-
+            if (gameSession.isGameOver())
+                Thread.currentThread().interrupt();
             long started = System.currentTimeMillis();
             act(FRAME_TIME);
             long elapsed = System.currentTimeMillis() - started;
