@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MechanicsSubroutines {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(MechanicsSubroutines.class);
-    private AtomicInteger idGenerator;
+    private final AtomicInteger idGenerator;
 
     public MechanicsSubroutines(AtomicInteger idGenerator) {
         this.idGenerator = idGenerator;
@@ -88,16 +88,15 @@ public class MechanicsSubroutines {
 
     public Boolean createExplosions(Point currentPoint, Map<Integer, GameObject> replica) {
 
-
         final int brickSize = 31;
         final int fireSize = 27;
+
         int fireX = currentPoint.getX();
         int fireY = currentPoint.getY();
 
         Bar fireBar = new Bar(fireX, fireX + fireSize, fireY, fireY + fireSize);
 
         for (GameObject gameObject : replica.values()) {
-
             int brickX = gameObject.getPosition().getX();
             int brickY = gameObject.getPosition().getY();
             Bar brickBar = new Bar(brickX, brickX + brickSize, brickY, brickY + brickSize);
@@ -121,6 +120,7 @@ public class MechanicsSubroutines {
 
 
     public int youDied(Map<Integer, GameObject> replica, Explosion explosion,int stillAlive) {
+
         final int brickSize = 31;
         final int fireSize = 27;
         int fireX = explosion.getPosition().getX();

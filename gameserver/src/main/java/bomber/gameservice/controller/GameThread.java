@@ -5,6 +5,7 @@ import bomber.connectionhandler.EventHandler;
 import bomber.connectionhandler.json.Json;
 import bomber.games.gameobject.Bomb;
 import bomber.games.gameobject.Explosion;
+import bomber.games.gameobject.Player;
 import bomber.games.gamesession.GameSession;
 import bomber.games.model.Tickable;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.LockSupport;
 
 import static bomber.gameservice.controller.GameController.gameSessionMap;
@@ -22,8 +24,8 @@ public class GameThread implements Runnable {
     private final long gameId;
     private static final int FPS = 60;
     private static final long FRAME_TIME = 1000 / FPS;
-    private Set<Tickable> tickables = new ConcurrentSkipListSet<>();
-    private long tickNumber = 0;
+    private final Set<Tickable> tickables = new ConcurrentSkipListSet<>();
+    private final AtomicLong tickNumber = new AtomicLong(0);
     private GameSession gameSession;
 
     public GameThread(final long gameId) {
@@ -33,10 +35,12 @@ public class GameThread implements Runnable {
     @Override
     public void run() {
         log.info("Start new thread called game-mechanics with gameId = " + gameId);
-        gameSession = new GameSession((int) gameId, tickables);
-        log.info("Game has been init gameId={}", gameId);
-        gameSession.setupGameMap();
-        gameSessionMap.put(gameId, gameSession);
+        synchronized (this) {
+            gameSession = new GameSession((int) gameId, tickables);
+            log.info("Game has been init gameId={}", gameId);
+            gameSession.setupGameMap();
+            gameSessionMap.put(gameId, gameSession);
+        }
         while (!Thread.currentThread().isInterrupted() || !gameSession.isGameOver()) {
 
             long started = System.currentTimeMillis();
@@ -47,44 +51,65 @@ public class GameThread implements Runnable {
             } else {
                 log.warn("tick lag {} ms", elapsed - FRAME_TIME);
             }
-            tickNumber++;
+
+            tickNumber.incrementAndGet();
 
         }
 
     }
 
-
-    private void act(long elapsed) {
+    private  void act(long elapsed) {
         try {
-
             EventHandler.sendReplica(gameSession.getId());
         } catch (IOException e) {
             log.error("Error to send REPLICA");
         }
+        int gameOverCondition = GameSession.MAX_PLAYER_IN_GAME;
         for (Tickable tickable : tickables) {
+            if (tickable instanceof Player)
+                gameOverCondition--;
             tickable.tick(elapsed);
-            if (tickable instanceof Bomb || tickable instanceof Explosion) {
-                if (!tickable.isAlive()) {
-                    log.info("it IS'NT alive");
-                    unregisterTickable(tickable);
+                if (tickable instanceof Bomb || tickable instanceof Explosion) {
+                    if (!tickable.isAlive()) {
+                        if (tickable instanceof Bomb) {
+                            Player tmpPlayer = (Player)gameSession.getReplica().get(((Bomb) tickable).getPlayerId());
+                            tmpPlayer.decBombCount();
+                        }
+                        log.info("it IS'NT alive");
+                        unregisterTickable(tickable);
+                    }
                 }
             }
         }
-        if (!gameSession.getInputQueue().isEmpty()) {
-            gameSession.getGameMechanics().readInputQueue(gameSession.getInputQueue());
-            gameSession.setGameOver(gameSession.getGameMechanics().doMechanic(gameSession.getReplica(),
-                    gameSession.getIdGenerator()));
-            gameSession.getGameMechanics().clearInputQueue(gameSession.getInputQueue());
-            log.info("========================================");
-            log.info(Json.replicaToJson(gameSession.getReplica()));
+
+//        if (!gameSession.getInputQueue().isEmpty()) {
+//            gameSession.getGameMechanics().readInputQueue(gameSession.getInputQueue());
+ //           gameSession.setGameOver(gameSession.getGameMechanics().doMechanic(gameSession.getReplica(),
+  //                  gameSession.getIdGenerator()));
+    //        gameSession.getGameMechanics().clearInputQueue(gameSession.getInputQueue());
+    //        log.info("========================================");
+    //        log.info(Json.replicaToJson(gameSession.getReplica()));
+     //  } else {
+      //      gameSession.setGameOver(gameSession.getGameMechanics().doMechanic(gameSession.getReplica(),
+       //             gameSession.getIdGenerator()));
+
+        if (gameOverCondition == (GameSession.MAX_PLAYER_IN_GAME - 1)) {
+            gameSession.setGameOver(true);
         } else {
-            gameSession.setGameOver(gameSession.getGameMechanics().doMechanic(gameSession.getReplica(),
-                    gameSession.getIdGenerator()));
+            if (!gameSession.getInputQueue().isEmpty()) {
+                gameSession.getGameMechanics().readInputQueue(gameSession.getInputQueue());
+                gameSession.getGameMechanics().doMechanic(gameSession.getReplica(), gameSession.getIdGenerator());
+                gameSession.getGameMechanics().clearInputQueue(gameSession.getInputQueue());
+                log.info("========================================");
+                log.info(Json.replicaToJson(gameSession.getReplica(), gameSession.isGameOver()));
+            }
+
         }
+
 
     }
 
-    public long getTickNumber() {
+    public AtomicLong getTickNumber() {
         return tickNumber;
     }
 
