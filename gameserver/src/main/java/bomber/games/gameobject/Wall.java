@@ -32,17 +32,16 @@ public final class Wall implements Positionable {
 
     @Override
     public int hashCode() {
-        return  this.id;
+        return this.id;
     }
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        else
-        if (obj instanceof Player) {
+        else if (obj instanceof Player) {
             Wall wall = (Wall) obj;
-            return this.id ==  wall.id;
+            return this.id == wall.id;
         }
         return false;
     }

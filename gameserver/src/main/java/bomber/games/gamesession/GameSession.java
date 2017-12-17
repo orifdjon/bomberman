@@ -4,28 +4,27 @@ package bomber.games.gamesession;
 import bomber.connectionhandler.PlayerAction;
 import bomber.games.model.GameObject;
 import bomber.games.model.Tickable;
-import bomber.games.util.GeneratorIdSession;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class GameSession {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(GameSession.class);
-    private Map<Integer, GameObject> replica = new ConcurrentHashMap<>();
+    private final Map<Integer, GameObject> replica = new ConcurrentHashMap<>();
     private final int id;
     private final AtomicInteger idGenerator = new AtomicInteger(0); // У каждой сессии свой набор id
-    private ConcurrentLinkedQueue<PlayerAction> inputQueue = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<PlayerAction> inputQueue = new ConcurrentLinkedQueue<>();
     private int connectedPlayerCount = 0;
     public static final int DEFAULT_SETTING = 0;
 
-    public static final int MAX_PLAYER_IN_GAME = 4;
+    private static final int MAX_PLAYER_IN_GAME = 4;
     private GameMechanics gameMechanics = new GameMechanics(DEFAULT_SETTING, MAX_PLAYER_IN_GAME);
 
-    private boolean gameOver = false;
+    private volatile boolean gameOver = false;
 
     public ConcurrentLinkedQueue<PlayerAction> getInputQueue() {
         return inputQueue;

@@ -30,7 +30,7 @@ public class BomberService {
 
     @Transactional
     public void addToDb(@NotNull Integer gameId, @NotNull Date date) {
-        queue =  ConnectionQueue.getInstance();
+        queue = ConnectionQueue.getInstance();
         GameSession gameSession = new GameSession(gameId, date);
         gameSession.setGameId(gameId);
         gameSession.setDate(date);

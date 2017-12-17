@@ -1,11 +1,8 @@
 package bomber.connectionhandler.json;
 
 import bomber.games.model.GameObject;
-import com.fasterxml.jackson.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class DataReplica {
     private List<? extends GameObject> objects;
@@ -30,7 +27,6 @@ public class DataReplica {
     public void setGameOver(boolean gameOver) {
         this.gameOver = gameOver;
     }
-
 
 
 }

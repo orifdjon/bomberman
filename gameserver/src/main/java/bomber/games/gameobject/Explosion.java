@@ -80,7 +80,6 @@ public final class Explosion implements Tickable, Positionable {
     }
 
 
-
     public int getLifeTime() {
         return this.lifeTime;
     }

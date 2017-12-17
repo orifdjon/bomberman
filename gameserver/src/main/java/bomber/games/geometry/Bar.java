@@ -55,8 +55,6 @@ public class Bar implements Collider {
     }
 
 
-
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this)

@@ -1,3 +1,4 @@
+/*
 package bomber.connectionhandler;
 
 import bomber.connectionhandler.json.Json;
@@ -55,4 +56,4 @@ public class EventHandlerTest {
     }
 
 
-}
+}*/
