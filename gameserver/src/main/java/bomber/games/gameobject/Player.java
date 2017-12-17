@@ -13,13 +13,14 @@ import sun.plugin2.main.client.PluginEmbeddedFrame;
 public final class Player implements Movable, Comparable {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Player.class);
 
-
     private Point position;
     private final int id;
     private double velocity;
     private int bombPower;
     private int maxBombs;
     private final String type = "Pawn";
+    @JsonIgnore
+    private int bombCount;
     @JsonIgnore
     private final int playerSize = 27;
     @JsonIgnore
@@ -33,7 +34,20 @@ public final class Player implements Movable, Comparable {
         this.bombPower = 1;
         this.velocity = 0.05;
         this.maxBombs = 1;
+        this.bombCount = 0;
         log.info("Create player with id = " + id);
+    }
+
+    public int getBombCount() {
+        return bombCount;
+    }
+
+    public void incBombCount() {
+        this.bombCount++;
+    }
+
+    public void decBombCount() {
+        this.bombCount--;
     }
 
     @Override
@@ -44,7 +58,7 @@ public final class Player implements Movable, Comparable {
                 log.info("move UP");
                 break;
             case DOWN:
-                position = new Point(position.getX() , (int) (position.getY() - velocity * playerSize));
+                position = new Point(position.getX(), (int) (position.getY() - velocity * playerSize));
                 log.info("move DOWN");
                 break;
 
@@ -54,7 +68,7 @@ public final class Player implements Movable, Comparable {
                 break;
 
             case LEFT:
-                position = new Point((int) (position.getX() - velocity * playerSize) , position.getY());
+                position = new Point((int) (position.getX() - velocity * playerSize), position.getY());
                 log.info("move LEFT");
 
                 break;
@@ -68,8 +82,6 @@ public final class Player implements Movable, Comparable {
         }
         return position;
     }
-
-
 
 
     @Override

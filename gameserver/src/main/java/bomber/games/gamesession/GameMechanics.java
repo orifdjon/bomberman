@@ -54,7 +54,7 @@ public class GameMechanics {
 
         idGenerator.getAndIncrement();
         replica.put(idGenerator.get(), new Explosion(idGenerator.get(),
-                new Point(2*brickSize, 2 * brickSize)));
+                new Point(2 * brickSize, 2 * brickSize)));
         idGenerator.getAndIncrement();
         replica.put(idGenerator.get(), new Bonus(idGenerator.get(),
                 new Point(brickSize, 2 * brickSize), Bonus.Type.Bonus_Speed));
@@ -187,16 +187,19 @@ public class GameMechanics {
                             }
                             break;
                         case BOMB:
-                            Point bombPosition = new Point(currentPlayer.getPosition().getX(),
-                                    currentPlayer.getPosition().getY());
-                            idGenerator.getAndIncrement();
-                            Bomb tmpBomb = new Bomb(idGenerator.get(), bombPosition,
-                                    currentPlayer.getBombPower());
-                            replica.put(idGenerator.get(), tmpBomb);
-                            log.info("Bomb must be here");
-                            log.info("========================================");
-                            log.info(Json.replicaToJson(replica));
-                            registerTickable(tmpBomb);
+                            if (currentPlayer.getBombCount() < currentPlayer.getMaxBombs()) {
+                                Point bombPosition = new Point(currentPlayer.getPosition().getX(),
+                                        currentPlayer.getPosition().getY());
+                                idGenerator.getAndIncrement();
+                                Bomb tmpBomb = new Bomb(idGenerator.get(), bombPosition,
+                                        currentPlayer.getBombPower(), currentPlayer.getId());
+                                replica.put(idGenerator.get(), tmpBomb);
+                                log.info("Bomb must be here");
+                                log.info("========================================");
+//                                log.info(Json.replicaToJson(replica));
+                                registerTickable(tmpBomb);
+                                currentPlayer.incBombCount();
+                            }
                             break;
                         default:
                             break;
@@ -213,7 +216,7 @@ public class GameMechanics {
                             currentPlayer.setBombPower(currentPlayer.getBombPower() + 1);
                             break;
                         case Bonus_Speed:
-                            currentPlayer.setVelocity(currentPlayer.getVelocity() * 2);
+                            currentPlayer.setVelocity(currentPlayer.getVelocity() + 0.025);
                             break;
                         default:
                             break;
@@ -222,7 +225,7 @@ public class GameMechanics {
                 }
             }
 
-            if (gameObject instanceof Bomb ) { //начинаем работать с бомбами
+            if (gameObject instanceof Bomb) { //начинаем работать с бомбами
                 if (!((Bomb) gameObject).isAlive()) { //если эта бомба еще не взорвалась
 
                     Bomb currentBomb = (Bomb) gameObject;
@@ -242,11 +245,11 @@ public class GameMechanics {
                             log.info(currentBomb.getPosition().toString() + "Координаты бомбы");
                             log.info(boxObject.getPosition().toString() + "Координаты сравниваемого объекта");
 
-                        boolean up = true;
-                        boolean down = true;
-                        boolean left = true;
-                        boolean right = true;
-                        //это все индикаторы, отслеживающие был ли уже взрыв объекта по одной их 4х сторон взрыва, чего то более изящного не придумал
+                            boolean up = true;
+                            boolean down = true;
+                            boolean left = true;
+                            boolean right = true;
+                            //это все индикаторы, отслеживающие был ли уже взрыв объекта по одной их 4х сторон взрыва, чего то более изящного не придумал
 
                             for (int power = 1; power <= (currentBomb).getExplosionRange(); power++) { //надо узнать силу взрыва
                                 for (int side = 1; side <= 4; side++) { //взрыв на все 4 стороны
@@ -305,7 +308,7 @@ public class GameMechanics {
                 }
 
             }
-            if (gameObject instanceof Explosion ) { //убираем Explosion с карты
+            if (gameObject instanceof Explosion) { //убираем Explosion с карты
                 if (!((Explosion) gameObject).isAlive()) {
                     replica.remove(gameObject.getId());
                 } else {

@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class BonusRandom {
     private final int Each_Bonus_Max;
-    public static final int BONUS_PER_PLAYER = 3; //if changing to a number not dividable by 3 make sure that
+    public static final int BONUS_PER_PLAYER = 5; //if changing to a number not dividable by 3 make sure that
     private int bonusCount = 0;                                              //Each_Bonus_Max will be ok
     private final int Total_Maximum;
     private Bonus.Type bonusType[] = new Bonus.Type[] {null, Bonus.Type.Bonus_Speed, Bonus.Type.Bonus_Bomb, Bonus.Type.Bonus_Fire};
@@ -27,6 +27,7 @@ public class BonusRandom {
                 if (random.nextInt(2) == 0) {
                     return null;
                 } else {
+                    bonusCount++;
                     return bonusType[tmp];
                 }
             }
