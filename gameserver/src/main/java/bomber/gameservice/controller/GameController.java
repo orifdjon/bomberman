@@ -24,6 +24,7 @@ public class GameController {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(GameController.class);
     private static AtomicInteger connectedPlayerCount = new AtomicInteger(4);
     static Map<Long, GameSession> gameSessionMap = new ConcurrentHashMap<>();
+
     /**
      * curl -i localhost:8090/game/create
      */
@@ -49,7 +50,7 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<String> create(@RequestParam("playerCount") String playerCount) {
         final long gameId = add();
-         // засовываем gameId с нулевым GameSession, т.е GameSession по логике не существует
+        // засовываем gameId с нулевым GameSession, т.е GameSession по логике не существует
         log.info("Game has been created playerCount={}", playerCount);
         return ResponseEntity.ok().body(Long.toString(gameId));//возращает gameId
     }
@@ -61,7 +62,6 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<String> start(@RequestParam("gameId") String gameIdString) {
 
-//        long gameId = Long.parseLong(gameIdString.substring(1, gameIdString.length() - 1));
         long gameId = Long.parseLong(gameIdString);
         if (!gameSessionMap.containsKey(gameId)) {
             log.error("Don't have games to run gameId={}", gameId);
@@ -90,7 +90,8 @@ public class GameController {
     }
 
     private void start(final long gameId) {
-        new Thread(new GameThread(gameId), "game-mechanics with gameId = " + gameId).start();// создаем новый тред для игры c gameId
+        new Thread(new GameThread(gameId),
+                "game-mechanics with gameId = " + gameId).start();// создаем новый тред для игры c gameId
     }
 
 

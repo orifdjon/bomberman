@@ -12,9 +12,10 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
-
-import static java.lang.Thread.sleep;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
 
 
 @Component
@@ -27,9 +28,7 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
     @Override
     public void afterConnectionEstablished(final WebSocketSession session) throws Exception {
         super.afterConnectionEstablished(session);
-        //connected player count?
-        connectionPool.put(session.hashCode(), uriSessionToPlayer(session.getUri(), session));//due to realisation player
-                                                                                        //Id matches to session hashcode
+        connectionPool.put(session.hashCode(), uriSessionToPlayer(session.getUri(), session));
     }
 
     @Override
@@ -44,7 +43,6 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-        //connected player count?
         System.out.println("here");
         System.out.println(session.hashCode());
         connectionPool.remove(session.hashCode());
@@ -62,8 +60,6 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
                         new TextMessage(Json.replicaToJson(GameController.getGameSession(gameId).getReplica())));
             }
 
-//        for (WebSocketSession session : list) {
-//            session.sendMessage(new TextMessage(Json.replicaToJson(GameController.getGameSession(gameId).getReplica())));
         }
     }
 

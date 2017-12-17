@@ -1,7 +1,6 @@
 package bomber.games.geometry;
 
 
-
 public final class Point implements Collider {
     private final int x;
     private final int y;
@@ -47,6 +46,6 @@ public final class Point implements Collider {
 
     @Override
     public String toString() {
-        return "(" + x +", " + y + ")";
+        return "(" + x + ", " + y + ")";
     }
 }

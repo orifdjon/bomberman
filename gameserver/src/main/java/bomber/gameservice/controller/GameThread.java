@@ -43,17 +43,14 @@ public class GameThread implements Runnable {
             act(FRAME_TIME);
             long elapsed = System.currentTimeMillis() - started;
             if (elapsed < FRAME_TIME) {
-        /*        log.info("All tick finish at {} ms", elapsed);*/
                 LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(FRAME_TIME - elapsed));
             } else {
                 log.warn("tick lag {} ms", elapsed - FRAME_TIME);
             }
-          /*  log.info("{}: tick ", tickNumber);*/
             tickNumber++;
 
         }
     }
-
 
 
     private void act(long elapsed) {
@@ -65,12 +62,12 @@ public class GameThread implements Runnable {
         }
         for (Tickable tickable : tickables) {
             tickable.tick(elapsed);
-                if (tickable instanceof Bomb || tickable instanceof Explosion) {
-                    if (!tickable.isAlive()) {
-                        log.info("it IS'NT alive");
-                        unregisterTickable(tickable);
-                    }
+            if (tickable instanceof Bomb || tickable instanceof Explosion) {
+                if (!tickable.isAlive()) {
+                    log.info("it IS'NT alive");
+                    unregisterTickable(tickable);
                 }
+            }
         }
         if (!gameSession.getInputQueue().isEmpty()) {
             gameSession.getGameMechanics().readInputQueue(gameSession.getInputQueue());
@@ -81,6 +78,7 @@ public class GameThread implements Runnable {
         }
 
     }
+
     public long getTickNumber() {
         return tickNumber;
     }

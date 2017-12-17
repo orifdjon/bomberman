@@ -17,9 +17,11 @@ public final class Json {
 
 
     @Nullable
-    public static PlayerAction jsonToPlayerAction(@NotNull final Integer PlayerId,@NotNull final String json) { // Это для PLANT_BOMB и MOVE
+    public static PlayerAction jsonToPlayerAction(@NotNull final Integer playerId,
+                                                  @NotNull final String json) {
+        // Это для PLANT_BOMB и MOVE
         HandleInputJson handleInputJson = JsonHelper.fromJson(json, HandleInputJson.class);
-        PlayerAction playerAction = convertToPlayerAction(PlayerId, handleInputJson);
+        PlayerAction playerAction = convertToPlayerAction(playerId, handleInputJson);
         if (playerAction == null) {
             log.error("Не смогли конвертировать Json в PlayerAction");
             log.error("Клиент отправил не правильный тип json");
@@ -38,7 +40,8 @@ public final class Json {
 
 
     @NotNull
-    public static String replicaToJson(@NotNull final Map<Integer,? extends GameObject> map) { //отправка Replic через JSON
+    public static String replicaToJson(@NotNull final Map<Integer, ? extends GameObject> map) {
+        //отправка Replic через JSON
         Replica replica = new Replica();
         DataReplica dataReplica = replica.getData();
         List<GameObject> list = new ArrayList<>(map.values());
@@ -47,16 +50,17 @@ public final class Json {
     }
 
     @Nullable
-    private static PlayerAction convertToPlayerAction(@NotNull final Integer PlayerId,@NotNull final HandleInputJson handleInputJson) {
+    private static PlayerAction convertToPlayerAction(@NotNull final Integer playerId,
+                                                      @NotNull final HandleInputJson handleInputJson) {
         PlayerAction playerAction = new PlayerAction();
         if (handleInputJson.getTopic() == Topic.MOVE) {
-            playerAction.setId(PlayerId);
+            playerAction.setId(playerId);
             playerAction.setType(handleInputJson.getData().getEventType());
             return playerAction;
         }
 
         if (handleInputJson.getTopic() == Topic.PLANT_BOMB) {
-            playerAction.setId(PlayerId);
+            playerAction.setId(playerId);
             playerAction.setType(PlayerAction.EventType.BOMB);
             return playerAction;
         }

@@ -44,7 +44,7 @@ public final class Player implements Movable, Comparable {
                 log.info("move UP");
                 break;
             case DOWN:
-                position = new Point(position.getX() , (int) (position.getY() - velocity * playerSize));
+                position = new Point(position.getX(), (int) (position.getY() - velocity * playerSize));
                 log.info("move DOWN");
                 break;
 
@@ -54,7 +54,7 @@ public final class Player implements Movable, Comparable {
                 break;
 
             case LEFT:
-                position = new Point((int) (position.getX() - velocity * playerSize) , position.getY());
+                position = new Point((int) (position.getX() - velocity * playerSize), position.getY());
                 log.info("move LEFT");
 
                 break;
@@ -68,8 +68,6 @@ public final class Player implements Movable, Comparable {
         }
         return position;
     }
-
-
 
 
     @Override

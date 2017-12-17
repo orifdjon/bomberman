@@ -39,10 +39,9 @@ public final class Box implements Positionable {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        else
-        if (obj instanceof Player) {
+        else if (obj instanceof Player) {
             Box box = (Box) obj;
-            return this.id ==  box.id;
+            return this.id == box.id;
         }
         return false;
     }

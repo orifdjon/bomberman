@@ -27,9 +27,6 @@ public final class Bomb implements Tickable, Positionable, Comparable {
     private boolean alive = true;
 
 
-
-
-
     public Bomb() {
     }
 

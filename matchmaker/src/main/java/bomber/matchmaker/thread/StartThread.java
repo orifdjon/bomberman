@@ -22,8 +22,6 @@ public class StartThread extends Thread {
     private boolean isStarted;
     private BomberService bomberService;
 
-    
-
 
     public StartThread(Integer gameId, BomberService bomberService) {
         super("StartThread_gameId=" + gameId);

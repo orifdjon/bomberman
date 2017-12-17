@@ -4,14 +4,13 @@ package bomber.games.gamesession;
 import bomber.connectionhandler.PlayerAction;
 import bomber.games.model.GameObject;
 import bomber.games.model.Tickable;
-import bomber.games.util.GeneratorIdSession;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class GameSession {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(GameSession.class);
@@ -62,7 +61,7 @@ public class GameSession {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj){
+        if (this == obj) {
             return true;
         } else {
             if (obj instanceof GameSession) {
