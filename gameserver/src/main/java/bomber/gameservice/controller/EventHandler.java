@@ -1,7 +1,7 @@
-package bomber.connectionhandler;
+package bomber.gameservice.controller;
 
+import bomber.connectionhandler.Player;
 import bomber.connectionhandler.json.Json;
-import bomber.gameservice.controller.GameController;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -13,6 +13,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.Thread.sleep;
 
@@ -20,7 +21,7 @@ import static java.lang.Thread.sleep;
 @Component
 public class EventHandler extends TextWebSocketHandler implements WebSocketHandler {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(EventHandler.class);
-    private static final Map<Integer, Player> connectionPool = new HashMap<>();
+    private static final Map<Integer, Player> connectionPool = new ConcurrentHashMap<>();
     public static final String GAMEID_ARG = "gameId";
     public static final String NAME_ARG = "name";
 
@@ -30,6 +31,7 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
         //connected player count?
         connectionPool.put(session.hashCode(), uriSessionToPlayer(session.getUri(), session));//due to realisation player
                                                                                         //Id matches to session hashcode
+        GameController.gameSessionMap.get(uriToGameId(session.getUri())).incConnectedPlayerCount();
     }
 
     @Override
@@ -48,6 +50,7 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
         System.out.println("here");
         System.out.println(session.hashCode());
         connectionPool.remove(session.hashCode());
+        GameController.gameSessionMap.get(uriToGameId(session.getUri())).decConnectedPlayerCount();
 
         super.afterConnectionClosed(session, closeStatus);
     }
@@ -59,7 +62,8 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
         for (Integer id : connectionPool.keySet()) {
             if (connectionPool.get(id).getGameid() == gameId) {
                 connectionPool.get(id).getWebSocketSession().sendMessage(
-                        new TextMessage(Json.replicaToJson(GameController.getGameSession(gameId).getReplica())));
+                        new TextMessage(Json.replicaToJson(GameController.getGameSession(gameId).getReplica(),
+                                GameController.getGameSession(gameId).getGameOver())));
             }
 
 //        for (WebSocketSession session : list) {
@@ -84,6 +88,15 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
             }
         }
         return player;
+    }
+
+    public static long uriToGameId(final URI uri) {
+        long gameId = 0;
+        for (String iter : uri.getQuery().split("&"))
+            if (iter.contains(GAMEID_ARG) && !(iter.indexOf("=") == iter.length() - 1)) {
+                gameId = Long.parseLong(iter.substring(iter.indexOf("=") + 1, iter.length()));
+        }
+        return gameId;
     }
 
     public static List<Integer> getSessionIdList() {

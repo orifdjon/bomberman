@@ -26,6 +26,8 @@ public final class Player implements Movable, Comparable {
     private long time;
     @JsonIgnore
     private boolean alive = true;
+    @JsonIgnore
+    private int bombCount = 0;
 
     public Player(final int id, final Point position) {
         this.id = id;
@@ -69,7 +71,18 @@ public final class Player implements Movable, Comparable {
         return position;
     }
 
+    @JsonIgnore
+    public int getBombCount() {
+        return bombCount;
+    }
 
+    public void incBombCount() {
+        this.bombCount++;
+    }
+
+    public void decBombCount() {
+        this.bombCount--;
+    }
 
 
     @Override

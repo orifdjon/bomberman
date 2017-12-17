@@ -1,9 +1,9 @@
 package bomber.gameservice.controller;
 
 
-import bomber.connectionhandler.EventHandler;
-import bomber.connectionhandler.json.Json;
 import bomber.games.gameobject.Bomb;
+import bomber.games.gameobject.Explosion;
+import bomber.games.gameobject.Player;
 import bomber.games.gameobject.Explosion;
 import bomber.games.gamesession.GameSession;
 import bomber.games.model.Tickable;
@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
+import static bomber.games.gamesession.GameSession.MAX_PLAYER_IN_GAME;
 import static bomber.gameservice.controller.GameController.gameSessionMap;
 
 public class GameThread implements Runnable {
@@ -30,6 +31,7 @@ public class GameThread implements Runnable {
         this.gameId = gameId;
     }
 
+    
     @Override
     public void run() {
         log.info("Start new thread called game-mechanics with gameId = " + gameId);
@@ -43,17 +45,16 @@ public class GameThread implements Runnable {
             act(FRAME_TIME);
             long elapsed = System.currentTimeMillis() - started;
             if (elapsed < FRAME_TIME) {
-        /*        log.info("All tick finish at {} ms", elapsed);*/
+                /*        log.info("All tick finish at {} ms", elapsed);*/
                 LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(FRAME_TIME - elapsed));
             } else {
                 log.warn("tick lag {} ms", elapsed - FRAME_TIME);
             }
-          /*  log.info("{}: tick ", tickNumber);*/
+            /*  log.info("{}: tick ", tickNumber);*/
             tickNumber++;
 
         }
     }
-
 
 
     private void act(long elapsed) {
@@ -63,24 +64,35 @@ public class GameThread implements Runnable {
         } catch (IOException e) {
             log.error("Error to send REPLICA");
         }
+        int gameOverCondition = MAX_PLAYER_IN_GAME;
         for (Tickable tickable : tickables) {
+            if (tickable instanceof Player)
+                gameOverCondition--;
             tickable.tick(elapsed);
-                if (tickable instanceof Bomb || tickable instanceof Explosion) {
-                    if (!tickable.isAlive()) {
-                        log.info("it IS'NT alive");
-                        unregisterTickable(tickable);
+
+            if (tickable instanceof Bomb || tickable instanceof Explosion) {
+                if (!tickable.isAlive()) {
+                    if (tickable instanceof Bomb) {
+                        Player tmpPlayer = (Player) gameSession.getReplica().get(((Bomb) tickable).getPlayerId());
+                        tmpPlayer.decBombCount();
                     }
+                    log.info("it IS'NT alive");
+                    unregisterTickable(tickable);
                 }
+            }
         }
-        if (!gameSession.getInputQueue().isEmpty()) {
-            gameSession.getGameMechanics().readInputQueue(gameSession.getInputQueue());
-            gameSession.getGameMechanics().doMechanic(gameSession.getReplica(), gameSession.getIdGenerator());
-            gameSession.getGameMechanics().clearInputQueue(gameSession.getInputQueue());
-            log.info("========================================");
-            log.info(Json.replicaToJson(gameSession.getReplica()));
+        if (!(gameOverCondition == 1)) {
+            if (!gameSession.getInputQueue().isEmpty()) {
+                gameSession.getGameMechanics().readInputQueue(gameSession.getInputQueue());
+                gameSession.getGameMechanics().doMechanic(gameSession.getReplica(), gameSession.getIdGenerator());
+                gameSession.getGameMechanics().clearInputQueue(gameSession.getInputQueue());
+            }
+        } else {
+            gameSession.setGameOver(true);
         }
 
     }
+
     public long getTickNumber() {
         return tickNumber;
     }

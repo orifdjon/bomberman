@@ -1,14 +1,14 @@
 package bomber.games.gamesession;
 
-import bomber.connectionhandler.EventHandler;
+import bomber.gameservice.controller.EventHandler;
 import bomber.connectionhandler.PlayerAction;
-import bomber.connectionhandler.json.Json;
 import bomber.games.gameobject.*;
 import bomber.games.geometry.Point;
 import bomber.games.model.GameObject;
 import bomber.games.model.Movable;
 import bomber.games.model.Tickable;
 import bomber.games.util.BonusRandom;
+import bomber.games.util.SpawnPositionsCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,13 +24,11 @@ public class GameMechanics {
     private static final Logger log = LoggerFactory.getLogger(GameMechanics.class);
     private static final int MAX_PLAYER_IN_GAME = 4;
     private Map<Integer, PlayerAction> actionOnMap = new HashMap<>();
-    private final int gameZone_X = 17;//0,16 - стенки по X
-    private final int gameZone_Y = 13; //0,12 - стенки по Y
+    public static final int gameZone_X = 17;//0,16 - стенки по X
+    public static final int gameZone_Y = 13; //0,12 - стенки по Y
     private int playersCount;//Число игроков
-    private final int brickSize = 32;//в будущем, когда будет накладываться на это дело фронтенд, это пригодится
-
+    public static final int brickSize = 32;//в будущем, когда будет накладываться на это дело фронтенд, это пригодится
     private final List<Integer> listPlayerId;
-    private static List<List<Point>> spawnPositionsCollection = new ArrayList<>();
     private int positionSetting;  //choose which spawn positions will be applied
     private Set<Tickable> tickables = new ConcurrentSkipListSet<>();
     private ArrayList<GameObject> map = new ArrayList<>();
@@ -41,13 +39,6 @@ public class GameMechanics {
         this.listPlayerId = new ArrayList<>();
         listPlayerId.add(null);
         this.listPlayerId.addAll(EventHandler.getSessionIdList());
-        List<Point> defaultPositions = new ArrayList<>();
-        defaultPositions.add(null);
-        defaultPositions.add(new Point(brickSize, brickSize));
-        defaultPositions.add(new Point(gameZone_X * brickSize - brickSize * 2, brickSize));
-        defaultPositions.add(new Point(brickSize, gameZone_Y * brickSize - brickSize * 2));
-        defaultPositions.add(new Point(gameZone_X * brickSize - brickSize * 2, gameZone_Y * brickSize - brickSize * 2));
-        spawnPositionsCollection.add(new ArrayList<Point>(defaultPositions));
     }
 
     public void setupGame(Map<Integer, GameObject> replica, AtomicInteger idGenerator) {
@@ -64,7 +55,7 @@ public class GameMechanics {
                 new Point(2 * brickSize, brickSize), Bonus.Type.Bonus_Bomb));
 
         BonusRandom bonusRandom = new BonusRandom(playersCount);
-
+        List<Point> playerPositions = SpawnPositionsCollection.getDefaultPositions();
         for (int x = 0; x <= gameZone_X; x++) {
             for (int y = 0; y <= gameZone_Y; y++) {
                 if (y == 0 || x == 0 || x * brickSize == (gameZone_X * brickSize - brickSize) ||
@@ -81,7 +72,7 @@ public class GameMechanics {
                 } else {
                     if (!(y == 0 || x == 0 || x * brickSize == (gameZone_X * brickSize - brickSize) ||
                             y * brickSize == (gameZone_Y * brickSize - brickSize))) {
-                        if (!isPlayerSpawn(x, y)) {
+                        if (!isPlayerSpawn(x, y, playerPositions)) {
                             Bonus.Type bonus = bonusRandom.randomBonus();
                             if (bonus != null) {
                                 idGenerator.getAndIncrement();
@@ -96,8 +87,9 @@ public class GameMechanics {
                 }
             }
         }
+
         for (int i = 1; i <= playersCount; i++) {
-            replica.put(listPlayerId.get(i), new Player(listPlayerId.get(i), spawnPositionsCollection.get(positionSetting).get(i)));
+            replica.put(listPlayerId.get(i), new Player(listPlayerId.get(i), playerPositions.get(i)));
             registerTickable((Tickable) replica.get(listPlayerId.get(i)));
             try {
                 EventHandler.sendPossess(listPlayerId.get(i));
@@ -107,11 +99,11 @@ public class GameMechanics {
         }
     }
 
-    private boolean isPlayerSpawn(int x, int y) {
+    private boolean isPlayerSpawn(int x, int y, List<Point> PlayerPosition) {
         boolean flag = false;
         for (int i = 1; i <= playersCount; i++) {
-            Point playerPoint = new Point(spawnPositionsCollection.get(positionSetting).get(i).getX(),
-                    spawnPositionsCollection.get(positionSetting).get(i).getY());
+            Point playerPoint = new Point(PlayerPosition.get(i).getX(),
+                    PlayerPosition.get(i).getY());
             Point currentPoint = new Point(x * brickSize, y * brickSize);
             if (playerPoint.equals(currentPoint))
                 flag = true;
@@ -187,16 +179,19 @@ public class GameMechanics {
                             }
                             break;
                         case BOMB:
-                            Point bombPosition = new Point(currentPlayer.getPosition().getX(),
-                                    currentPlayer.getPosition().getY());
-                            idGenerator.getAndIncrement();
-                            Bomb tmpBomb = new Bomb(idGenerator.get(), bombPosition,
-                                    currentPlayer.getBombPower());
-                            replica.put(idGenerator.get(), tmpBomb);
-                            log.info("Bomb must be here");
-                            log.info("========================================");
-                            log.info(Json.replicaToJson(replica));
-                            registerTickable(tmpBomb);
+                        
+                  
+                            if (currentPlayer.getBombCount() < currentPlayer.getMaxBombs()) {
+                                idGenerator.getAndIncrement();
+                                Bomb tmpBomb = new Bomb(idGenerator.get(),
+                                        new Point(currentPlayer.getPosition().getX() + brickSize / 4,
+                                                currentPlayer.getPosition().getY() - brickSize / 4),
+                                        currentPlayer.getBombPower(), currentPlayer.getId());
+                                replica.put(idGenerator.get(), tmpBomb);
+                                registerTickable(tmpBomb);
+                                currentPlayer.incBombCount();
+                            }
+
                             break;
                         default:
                             break;
@@ -222,7 +217,7 @@ public class GameMechanics {
                 }
             }
 
-            if (gameObject instanceof Bomb ) { //начинаем работать с бомбами
+            if (gameObject instanceof Bomb) { //начинаем работать с бомбами
                 if (!((Bomb) gameObject).isAlive()) { //если эта бомба еще не взорвалась
 
                     Bomb currentBomb = (Bomb) gameObject;
@@ -261,43 +256,43 @@ public class GameMechanics {
                                                     up = false; //взрыв был потрачен либо в стену, либо в коробку, дальше взрыв не пойдет
                                                 }
                                             }
-                                            break;
-                                        case 2://если идет вниз
-                                            if (down) {
-                                                Point currentPoint = new Point(epicenterX, epicenterY - power * brickSize);
-                                                if (mechanicsSubroutines.createExplosions(currentPoint, replica)) {
-                                                    idGenerator.getAndIncrement();
-                                                    replica.put(idGenerator.get(), new Explosion(idGenerator.get(), currentPoint)); //место не занято, отрисуем взрыв
-                                                } else {
-                                                    down = false;
-                                                }
+                                        }
+                                        break;
+                                    case 2://если идет вниз
+                                        if (down) {
+                                            Point currentPoint = new Point(epicenterX, epicenterY - power * brickSize);
+                                            if (mechanicsSubroutines.createExplosions(currentPoint, replica)) {
+                                                idGenerator.getAndIncrement();
+                                                replica.put(idGenerator.get(), new Explosion(idGenerator.get(), currentPoint)); //место не занято, отрисуем взрыв
+                                            } else {
+                                                down = false;
                                             }
-                                            break;
-                                        case 3://если идет влево
-                                            if (left) {
-                                                Point currentPoint = new Point(epicenterX - power * brickSize, epicenterY);
-                                                if (mechanicsSubroutines.createExplosions(currentPoint, replica)) {
-                                                    idGenerator.getAndIncrement();
-                                                    replica.put(idGenerator.get(), new Explosion(idGenerator.get(), currentPoint)); //место не занято, отрисуем взрыв
-                                                } else {
-                                                    left = false;
-                                                }
+                                        }
+                                        break;
+                                    case 3://если идет влево
+                                        if (left) {
+                                            Point currentPoint = new Point(epicenterX - power * brickSize, epicenterY);
+                                            if (mechanicsSubroutines.createExplosions(currentPoint, replica)) {
+                                                idGenerator.getAndIncrement();
+                                                replica.put(idGenerator.get(), new Explosion(idGenerator.get(), currentPoint)); //место не занято, отрисуем взрыв
+                                            } else {
+                                                left = false;
                                             }
-                                            break;
-                                        case 4://если идет вправо
-                                            if (right) {
-                                                Point currentPoint = new Point(epicenterX + power * brickSize, epicenterY);
-                                                if (mechanicsSubroutines.createExplosions(currentPoint, replica)) {
-                                                    idGenerator.getAndIncrement();
-                                                    replica.put(idGenerator.get(), new Explosion(idGenerator.get(), currentPoint)); //место не занято, отрисуем взрыв
-                                                } else {
-                                                    right = false;
-                                                }
+                                        }
+                                        break;
+                                    case 4://если идет вправо
+                                        if (right) {
+                                            Point currentPoint = new Point(epicenterX + power * brickSize, epicenterY);
+                                            if (mechanicsSubroutines.createExplosions(currentPoint, replica)) {
+                                                idGenerator.getAndIncrement();
+                                                replica.put(idGenerator.get(), new Explosion(idGenerator.get(), currentPoint)); //место не занято, отрисуем взрыв
+                                            } else {
+                                                right = false;
                                             }
-                                            break;
-                                        default:
-                                            break;
-                                    }
+                                        }
+                                        break;
+                                    default:
+                                        break;
                                 }
                             }
                         }
@@ -305,7 +300,8 @@ public class GameMechanics {
                 }
 
             }
-            if (gameObject instanceof Explosion ) { //убираем Explosion с карты
+
+            if (gameObject instanceof Explosion) { //убираем Explosion с карты
                 if (!((Explosion) gameObject).isAlive()) {
                     replica.remove(gameObject.getId());
                 } else {
@@ -314,6 +310,8 @@ public class GameMechanics {
             }
         }
     }
+
+
 
 
     private List<Point> setSpawnPositions() {   //only default realisation now, may be expanded for more spawn options

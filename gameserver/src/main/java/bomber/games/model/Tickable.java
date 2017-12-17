@@ -11,7 +11,7 @@ public interface Tickable {
 
 
     /**
-     * @return true if tickable objects is still exists
+     * @return true if tickable object still exists
      */
     boolean isAlive();
 }
