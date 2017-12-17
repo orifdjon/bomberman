@@ -8,9 +8,11 @@ import bomber.games.gameobject.Bomb;
 import bomber.games.geometry.Bar;
 import bomber.games.geometry.Point;
 import bomber.games.model.GameObject;
+import bomber.games.model.Tickable;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MechanicsSubroutines {
@@ -119,7 +121,7 @@ public class MechanicsSubroutines {
     }
 
 
-    public int youDied(Map<Integer, GameObject> replica, Explosion explosion,int stillAlive) {
+    public void youDied(Map<Integer, GameObject> replica, Explosion explosion, Set<Tickable> tickables) {
 
         final int brickSize = 31;
         final int fireSize = 27;
@@ -136,13 +138,11 @@ public class MechanicsSubroutines {
 
                 if (playerBar.isColliding(fireBar)) {
                     log.info("Игрок" + Integer.toString(gameObject.getId()) + "подорвался");
-                    replica.remove(gameObject.getId()); //удаляем взорвавшегося неудачника
-                    stillAlive--; //минус игрок
+                    replica.remove(gameObject.getId());//удаляем взорвавшегося неудачника
+                    tickables.remove(gameObject);
                 }
             }
 
         }
-
-     return stillAlive;
     }
 }

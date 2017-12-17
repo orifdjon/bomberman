@@ -58,7 +58,7 @@ public class GameThread implements Runnable {
 
     }
 
-    private  void act(long elapsed) {
+    private void act(long elapsed) {
         try {
             EventHandler.sendReplica(gameSession.getId());
         } catch (IOException e) {
@@ -69,18 +69,18 @@ public class GameThread implements Runnable {
             if (tickable instanceof Player)
                 gameOverCondition--;
             tickable.tick(elapsed);
-                if (tickable instanceof Bomb || tickable instanceof Explosion) {
-                    if (!tickable.isAlive()) {
-                        if (tickable instanceof Bomb) {
-                            Player tmpPlayer = (Player)gameSession.getReplica().get(((Bomb) tickable).getPlayerId());
-                            tmpPlayer.decBombCount();
-                        }
-                        log.info("it IS'NT alive");
-                        unregisterTickable(tickable);
+            if (tickable instanceof Bomb || tickable instanceof Explosion) {
+                if (!tickable.isAlive()) {
+                    if (tickable instanceof Bomb) {
+                        Player tmpPlayer = (Player) gameSession.getReplica().get(((Bomb) tickable).getPlayerId());
+                        tmpPlayer.decBombCount();
                     }
+                    log.info("it IS'NT alive");
+                    unregisterTickable(tickable);
                 }
             }
         }
+
 
 //        if (!gameSession.getInputQueue().isEmpty()) {
 //            gameSession.getGameMechanics().readInputQueue(gameSession.getInputQueue());
@@ -93,17 +93,26 @@ public class GameThread implements Runnable {
       //      gameSession.setGameOver(gameSession.getGameMechanics().doMechanic(gameSession.getReplica(),
        //             gameSession.getIdGenerator()));
 
+
         if (gameOverCondition == (GameSession.MAX_PLAYER_IN_GAME - 1)) {
+            log.info("------------------");
+            log.info("GAME OVER");
+            log.info("------------------");
             gameSession.setGameOver(true);
         } else {
+            log.info("В живых осталось {}", GameSession.MAX_PLAYER_IN_GAME - gameOverCondition);
             if (!gameSession.getInputQueue().isEmpty()) {
                 gameSession.getGameMechanics().readInputQueue(gameSession.getInputQueue());
-                gameSession.getGameMechanics().doMechanic(gameSession.getReplica(), gameSession.getIdGenerator());
+                gameSession.getGameMechanics().doMechanic(gameSession.getReplica(), gameSession.getIdGenerator(),
+                         tickables);
                 gameSession.getGameMechanics().clearInputQueue(gameSession.getInputQueue());
                 log.info("========================================");
                 log.info(Json.replicaToJson(gameSession.getReplica(), gameSession.isGameOver()));
-            }
+            } else {
+                gameSession.getGameMechanics().doMechanic(gameSession.getReplica(), gameSession.getIdGenerator(),
+                        tickables);
 
+            }
         }
 
 

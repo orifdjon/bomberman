@@ -21,7 +21,7 @@ public class GameSession {
     private int connectedPlayerCount = 0;
     public static final int DEFAULT_SETTING = 0;
 
-    private static final int MAX_PLAYER_IN_GAME = 4;
+    public static final int MAX_PLAYER_IN_GAME = 4;
     private GameMechanics gameMechanics = new GameMechanics(DEFAULT_SETTING, MAX_PLAYER_IN_GAME);
 
     private volatile boolean gameOver = false;
@@ -93,7 +93,4 @@ public class GameSession {
         return gameOver;
     }
 
-    public void setGameOver(boolean gameOver) {
-        this.gameOver = gameOver;
-    }
 }

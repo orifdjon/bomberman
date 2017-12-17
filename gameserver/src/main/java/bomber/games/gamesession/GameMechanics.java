@@ -33,7 +33,7 @@ public class GameMechanics {
 
     private static final Logger log = LoggerFactory.getLogger(GameMechanics.class);
     private static final int MAX_PLAYER_IN_GAME = 4;
-    private Map<Integer, PlayerAction> actionOnMap = new HashMap<>();
+    private final Map<Integer, PlayerAction> actionOnMap = new HashMap<>();
     private final int gameZoneX = 17;//0,16 - стенки по X
     private final int gameZoneY = 13; //0,12 - стенки по Y
     private int playersCount;//Число игроков
@@ -148,7 +148,7 @@ public class GameMechanics {
     }
 
 
-    public boolean doMechanic(Map<Integer, GameObject> replica, AtomicInteger idGenerator) {
+    public void doMechanic(Map<Integer, GameObject> replica, AtomicInteger idGenerator, Set<Tickable> tickables) {
 
         int stillAlive = playersCount;//чит
         for (GameObject gameObject : replica.values()) {
@@ -349,18 +349,10 @@ public class GameMechanics {
                     replica.remove(gameObject.getId());
                 } else {
                     log.info("Проверим, есть ли у этого Explosion жертвы");
-                    stillAlive = mechanicsSubroutines.youDied(replica, (Explosion) gameObject,stillAlive);
+                    mechanicsSubroutines.youDied(replica, (Explosion) gameObject, tickables);
                 }
             }
         }
-        log.info("В живых осталось:"+ Integer.toString(stillAlive));
-        if (stillAlive <= 1 ) { //если в живых остался один самурай, или оба камикадзе подорвались одновременно
-            log.info("=========================");
-            log.info("GAME OVER");
-            log.info("=========================");
-            return true; // закругляемся
-        }
-        return false; //продолжаем играть, война не окончена
     }
 
 

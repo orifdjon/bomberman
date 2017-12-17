@@ -76,13 +76,6 @@ public class GameController {
         return ResponseEntity.ok().body(gameIdString); //возращает gameId
     }
 
-    public static int getConnectedPlayerCount() {
-        return connectedPlayerCount.intValue();
-    }
-
-    public static synchronized void setConnectedPlayerCount(int value) {
-        connectedPlayerCount.set(value);
-    }
 
     private long add() {
         final long gameId;
