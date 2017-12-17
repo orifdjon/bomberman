@@ -12,7 +12,7 @@ import sun.plugin2.main.client.PluginEmbeddedFrame;
 
 public final class Player implements Movable, Comparable {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Player.class);
-    public static final double INITIAL_VELOCITY = 0.65;
+    public static final double INITIAL_VELOCITY = 0.065;
     public static final double VELOCITY_BONUS = INITIAL_VELOCITY * 0.33;
     private Point position;
     private final int id;
