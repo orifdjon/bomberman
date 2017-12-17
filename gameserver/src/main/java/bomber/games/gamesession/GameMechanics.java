@@ -29,6 +29,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static bomber.games.gameobject.Player.VELOCITY_BONUS;
+
 public class GameMechanics {
 
     private static final Logger log = LoggerFactory.getLogger(GameMechanics.class);
@@ -222,7 +224,7 @@ public class GameMechanics {
                             currentPlayer.setBombPower(currentPlayer.getBombPower() + 1);
                             break;
                         case Bonus_Speed:
-                            currentPlayer.setVelocity(currentPlayer.getVelocity() + 0.025);
+                            currentPlayer.setVelocity(currentPlayer.getVelocity() + VELOCITY_BONUS);
                             break;
                         default:
                             break;
@@ -244,7 +246,15 @@ public class GameMechanics {
                     //Начальные координаты (он же эпицентр взрыва)
                     int epicenterX = currentBomb.getPosition().getX();
                     int epicenterY = currentBomb.getPosition().getY();
-
+                    idGenerator.getAndIncrement();
+                    Explosion expl = new Explosion(idGenerator.get(),
+                            currentBomb.getPosition());
+                    replica.put(idGenerator.get(), expl); //место не занято, отрисуем взрыв
+                    registerTickable(expl);
+                    boolean up = true;
+                    boolean down = true;
+                    boolean left = true;
+                    boolean right = true;
 
                     for (GameObject boxObject : replica.values()) {
                         //пройдем по реплике в поисках жертв
@@ -253,10 +263,6 @@ public class GameMechanics {
                             log.info(currentBomb.getPosition().toString() + "Координаты бомбы");
                             log.info(boxObject.getPosition().toString() + "Координаты сравниваемого объекта");
 
-                            boolean up = true;
-                            boolean down = true;
-                            boolean left = true;
-                            boolean right = true;
 
                             //это все индикаторы, отслеживающие был ли уже взрыв объекта по одной
                             // их 4х сторон взрыва, чего то более изящного не придумал

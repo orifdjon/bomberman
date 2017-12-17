@@ -103,7 +103,7 @@ public class MechanicsSubroutines {
             int brickY = gameObject.getPosition().getY();
             Bar brickBar = new Bar(brickX, brickX + brickSize, brickY, brickY + brickSize);
             if (!(gameObject instanceof Bonus) && !(gameObject instanceof Player)) {
-                if (brickBar.isColliding(fireBar)) { //если на пути взрыва встал НЛО
+                if (brickBar.isColliding(currentPoint)) { //если на пути взрыва встал НЛО
                     if (gameObject instanceof Box) { //и это НЛО - коробка
                         //idGenerator.getAndIncrement();
                         //replica.put(idGenerator.get(), new Explosion(idGenerator.get(), gameObject.getPosition()));

@@ -12,7 +12,8 @@ import sun.plugin2.main.client.PluginEmbeddedFrame;
 
 public final class Player implements Movable, Comparable {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Player.class);
-
+    public static final double INITIAL_VELOCITY = 0.65;
+    public static final double VELOCITY_BONUS = INITIAL_VELOCITY * 0.33;
     private Point position;
     private final int id;
     private double velocity;
@@ -32,7 +33,7 @@ public final class Player implements Movable, Comparable {
         this.id = id;
         this.position = position;
         this.bombPower = 1;
-        this.velocity = 0.05;
+        this.velocity = INITIAL_VELOCITY;
         this.maxBombs = 1;
         this.bombCount = 0;
         log.info("Create player with id = " + id);
