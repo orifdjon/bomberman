@@ -50,6 +50,7 @@ public class GameThread implements Runnable {
             tickNumber++;
 
         }
+
     }
 
 
@@ -71,7 +72,8 @@ public class GameThread implements Runnable {
         }
         if (!gameSession.getInputQueue().isEmpty()) {
             gameSession.getGameMechanics().readInputQueue(gameSession.getInputQueue());
-            gameSession.getGameMechanics().doMechanic(gameSession.getReplica(), gameSession.getIdGenerator());
+            gameSession.setGameOver(gameSession.getGameMechanics().doMechanic(gameSession.getReplica(),
+                    gameSession.getIdGenerator()));
             gameSession.getGameMechanics().clearInputQueue(gameSession.getInputQueue());
             log.info("========================================");
             log.info(Json.replicaToJson(gameSession.getReplica()));

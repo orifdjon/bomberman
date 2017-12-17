@@ -72,6 +72,9 @@ public class GameSession {
         }
     }
 
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
 
     public boolean isGameOver() {
         return gameOver;

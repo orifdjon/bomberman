@@ -63,17 +63,6 @@ public class GameMechanics {
 
     public void setupGame(Map<Integer, GameObject> replica, AtomicInteger idGenerator) {
 
-        idGenerator.getAndIncrement();
-        replica.put(idGenerator.get(), new Explosion(idGenerator.get(),
-                new Point(2 * brickSize, 2 * brickSize)));
-        idGenerator.getAndIncrement();
-        replica.put(idGenerator.get(), new Bonus(idGenerator.get(),
-                new Point(brickSize, 2 * brickSize), Bonus.Type.Bonus_Speed));
-
-        idGenerator.getAndIncrement();
-        replica.put(idGenerator.get(), new Bonus(idGenerator.get(),
-                new Point(2 * brickSize, brickSize), Bonus.Type.Bonus_Bomb));
-
         BonusRandom bonusRandom = new BonusRandom(playersCount);
 
         for (int x = 0; x <= gameZoneX; x++) {
@@ -159,10 +148,15 @@ public class GameMechanics {
     }
 
 
-    public void doMechanic(Map<Integer, GameObject> replica, AtomicInteger idGenerator) {
+    public boolean doMechanic(Map<Integer, GameObject> replica, AtomicInteger idGenerator) {
+
+        int stillAlive = playersCount;//чит
         for (GameObject gameObject : replica.values()) {
             MechanicsSubroutines mechanicsSubroutines = new MechanicsSubroutines(idGenerator);
             //подняли вспомогательные методы
+
+
+
             if (gameObject instanceof Player) {
                 Player currentPlayer = ((Player) gameObject);
                 Point previosPos = currentPlayer.getPosition();
@@ -276,8 +270,10 @@ public class GameMechanics {
                                                 //сместились вверх от эпицентра, в зависимости от глубины взрыва
                                                 if (mechanicsSubroutines.createExplosions(currentPoint, replica)) {
                                                     idGenerator.getAndIncrement();
-                                                    replica.put(idGenerator.get(), new Explosion(idGenerator.get(),
-                                                            currentPoint)); //место не занято, отрисуем взрыв
+                                                    Explosion tmpExpl = new Explosion(idGenerator.get(),
+                                                            currentPoint);
+                                                    replica.put(idGenerator.get(), tmpExpl); //место не занято, отрисуем взрыв
+                                                    registerTickable(tmpExpl);
                                                 } else {
                                                     up = false;
                                                     //взрыв был потрачен либо в стену, либо в коробку,
@@ -291,8 +287,10 @@ public class GameMechanics {
                                                         epicenterY - power * brickSize);
                                                 if (mechanicsSubroutines.createExplosions(currentPoint, replica)) {
                                                     idGenerator.getAndIncrement();
-                                                    replica.put(idGenerator.get(), new Explosion(idGenerator.get(),
-                                                            currentPoint)); //место не занято, отрисуем взрыв
+                                                    Explosion tmpExpl = new Explosion(idGenerator.get(),
+                                                            currentPoint);
+                                                    replica.put(idGenerator.get(), tmpExpl); //место не занято, отрисуем взрыв
+                                                    registerTickable(tmpExpl);
                                                 } else {
                                                     down = false;
                                                 }
@@ -304,9 +302,10 @@ public class GameMechanics {
                                                         new Point(epicenterX - power * brickSize, epicenterY);
                                                 if (mechanicsSubroutines.createExplosions(currentPoint, replica)) {
                                                     idGenerator.getAndIncrement();
-                                                    replica.put(idGenerator.get(),
-                                                            new Explosion(idGenerator.get(), currentPoint));
-                                                    //место не занято, отрисуем взрыв
+                                                    Explosion tmpExpl = new Explosion(idGenerator.get(),
+                                                            currentPoint);
+                                                    replica.put(idGenerator.get(), tmpExpl); //место не занято, отрисуем взрыв
+                                                    registerTickable(tmpExpl);
                                                 } else {
                                                     left = false;
                                                 }
@@ -318,9 +317,10 @@ public class GameMechanics {
                                                         new Point(epicenterX + power * brickSize, epicenterY);
                                                 if (mechanicsSubroutines.createExplosions(currentPoint, replica)) {
                                                     idGenerator.getAndIncrement();
-                                                    replica.put(idGenerator.get(),
-                                                            new Explosion(idGenerator.get(), currentPoint));
-                                                    //место не занято, отрисуем взрыв
+                                                    Explosion tmpExpl = new Explosion(idGenerator.get(),
+                                                            currentPoint);
+                                                    replica.put(idGenerator.get(), tmpExpl); //место не занято, отрисуем взрыв
+                                                    registerTickable(tmpExpl);
                                                 } else {
                                                     right = false;
                                                 }
@@ -336,14 +336,26 @@ public class GameMechanics {
                 }
 
             }
-            if (gameObject instanceof Explosion) { //убираем Explosion с карты
+
+            if (gameObject instanceof Explosion) {
                 if (!((Explosion) gameObject).isAlive()) {
+
+                    log.info("Удаляем Explosion");
                     replica.remove(gameObject.getId());
                 } else {
-                    mechanicsSubroutines.youDied(replica, (Explosion) gameObject);
+                    log.info("Проверим, есть ли у этого Explosion жертвы");
+                    stillAlive = mechanicsSubroutines.youDied(replica, (Explosion) gameObject,stillAlive);
                 }
             }
         }
+        log.info("В живых осталось:"+ Integer.toString(stillAlive));
+        if (stillAlive <= 1 ) { //если в живых остался один самурай, или оба камикадзе подорвались одновременно
+            log.info("=========================");
+            log.info("GAME OVER");
+            log.info("=========================");
+            return true; // закругляемся
+        }
+        return false; //продолжаем играть, война не окончена
     }
 
 
