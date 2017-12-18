@@ -37,6 +37,7 @@ public class MmController {
     /**
      * curl -X POST -i localhost:8080/matchmaker/join -d 'name=bomberman'
      * we have default gameId = 42
+     *
      */
     @RequestMapping(
             path = "join",

@@ -14,10 +14,8 @@ public class MmRequests {
 
     static final OkHttpClient client = new OkHttpClient();
     public static final String HTTP_PROTOCOL = "http://";
-    public static final String WEBS_PROTOCOL = "ws://";
     public static final String HOST = "localhost";
     public static final String PORT_GS = ":8090";
-    public static final String PORT_MM = ":8080";
 
 
     public static Response create(final int playerCounter) throws IOException {
