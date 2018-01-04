@@ -19,13 +19,13 @@ public class StartThread extends Thread {
     private static final int TIMEOUT = 15;
     private static final int MAX_TIMEOUTS = 3;
     private volatile boolean isStarted;
-    private final BomberService bomberService;
+    /*private final BomberService bomberService;*/
 
 
-    public StartThread(Integer gameId, BomberService bomberService) {
+    public StartThread(Integer gameId/*, BomberService bomberService*/) {
         super("StartThread_gameId=" + gameId);
         this.gameId = gameId;
-        this.bomberService = bomberService;
+        /*this.bomberService = bomberService;*/
         isStarted = false;
 
     }
@@ -38,10 +38,11 @@ public class StartThread extends Thread {
                 && !isStarted) {
             try {
                 synchronized (gameId) {
-                    playersConnected = Integer.parseInt(MmRequests.checkStatus().body().string());
+                    playersConnected = Integer.parseInt(MmRequests.checkStatus(gameId).body().string());
                 }
+
                 if (playersConnected == MAX_PLAYER_IN_GAME) {
-                    bomberService.addToDb(gameId, new Date());
+                    /*bomberService.addToDb(gameId, new Date());*/
                     log.info("Sending a request to start the game with {} out of {} players in it, gameID = {}",
                             playersConnected, MAX_PLAYER_IN_GAME, gameId);
                     MmRequests.start(this.gameId);
@@ -67,7 +68,7 @@ public class StartThread extends Thread {
             if (playersConnected == 0 || playersConnected == 1) {
                 log.info("failed to start the game");
             } else {
-                bomberService.addToDb(gameId, new Date());
+                /*bomberService.addToDb(gameId, new Date());*/
                 log.info("Sending a request to start the game with {} out of {} players in it, gameID = {}",
                         playersConnected, MAX_PLAYER_IN_GAME, gameId);
                 try {

@@ -1,6 +1,7 @@
 package bomber.connectionhandler;
 
 import bomber.connectionhandler.json.Json;
+import bomber.games.gamesession.GameSession;
 import bomber.gameservice.controller.GameController;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -26,9 +27,14 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
     public static final String NAME_ARG = "name";
 
     @Override
-    public synchronized void  afterConnectionEstablished(final WebSocketSession session) throws Exception {
+    public synchronized void afterConnectionEstablished(final WebSocketSession session) throws Exception {
         super.afterConnectionEstablished(session);
+
+        //connected player count?
         connectionPool.put(session.hashCode(), uriSessionToPlayer(session.getUri(), session));
+        //due to realisation player
+        //Id matches to session hashcode
+        GameController.gameSessionMap.get(uriToGameId(session.getUri())).incConnectedPlayerCount();
     }
 
     @Override
@@ -46,7 +52,7 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
         System.out.println("here");
         System.out.println(session.hashCode());
         connectionPool.remove(session.hashCode());
-
+        GameController.gameSessionMap.get(uriToGameId(session.getUri())).decConnectedPlayerCount();
         super.afterConnectionClosed(session, closeStatus);
     }
 
@@ -57,13 +63,14 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
         for (Integer id : connectionPool.keySet()) {
             if (connectionPool.get(id).getGameid() == gameId) {
                 connectionPool.get(id).getWebSocketSession().sendMessage(
-                        new TextMessage(Json.replicaToJson(GameController.getGameSession(gameId).getReplica())));
+                        new TextMessage(Json.replicaToJson(GameController.getGameSession(gameId).getReplica(),
+                                GameController.getGameSession(gameId).isGameOver())));
             }
 
         }
     }
 
-    public synchronized static void sendPossess(final int playerId) throws IOException {
+    public static synchronized  void sendPossess(final int playerId) throws IOException {
         connectionPool.get(playerId).getWebSocketSession().sendMessage(
                 new TextMessage(Json.possesToJson(playerId)));
     }
@@ -80,6 +87,16 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
             }
         }
         return player;
+    }
+
+    public static long uriToGameId(final URI uri) {
+        long gameId = 0;
+        for (String iter : uri.getQuery().split("&")) {
+            if (iter.contains(GAMEID_ARG) && !(iter.indexOf("=") == iter.length() - 1)) {
+                gameId = Long.parseLong(iter.substring(iter.indexOf("=") + 1, iter.length()));
+            }
+        }
+        return gameId;
     }
 
     public static List<Integer> getSessionIdList() {

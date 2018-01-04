@@ -18,9 +18,10 @@ public class GameSession {
     private final int id;
     private final AtomicInteger idGenerator = new AtomicInteger(0); // У каждой сессии свой набор id
     private final ConcurrentLinkedQueue<PlayerAction> inputQueue = new ConcurrentLinkedQueue<>();
-    private static final int DEFAULT_SETTING = 0;
+    private int connectedPlayerCount = 0;
+    public static final int DEFAULT_SETTING = 0;
 
-    private static final int MAX_PLAYER_IN_GAME = 4;
+    public static final int MAX_PLAYER_IN_GAME = 4;
     private GameMechanics gameMechanics = new GameMechanics(DEFAULT_SETTING, MAX_PLAYER_IN_GAME);
 
     private volatile boolean gameOver = false;
@@ -37,6 +38,18 @@ public class GameSession {
     public void setupGameMap() {
         gameMechanics.setupGame(replica, idGenerator);
 
+    }
+
+    public int getConnectedPlayerCount() {
+        return connectedPlayerCount;
+    }
+
+    public void incConnectedPlayerCount() {
+        this.connectedPlayerCount++;
+    }
+
+    public void decConnectedPlayerCount() {
+        this.connectedPlayerCount--;
     }
 
     public Integer getInc() {
@@ -72,8 +85,12 @@ public class GameSession {
         }
     }
 
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
 
     public boolean isGameOver() {
         return gameOver;
     }
+
 }

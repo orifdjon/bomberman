@@ -31,12 +31,13 @@ public class MmController {
     private static final AtomicInteger idGenerator = new AtomicInteger();
     public static final int MAX_PLAYER_IN_GAME = 4;
 
-    @Autowired
-    private BomberService bomberService;
+    /*@Autowired
+    private BomberService bomberService;*/
 
     /**
      * curl -X POST -i localhost:8080/matchmaker/join -d 'name=bomberman'
      * we have default gameId = 42
+     *
      */
     @RequestMapping(
             path = "join",
@@ -50,7 +51,7 @@ public class MmController {
         String[] massivStringForInputName = data.split("=");
         String name = massivStringForInputName[1]; // get player's name
 
-        StartThread startThread = new StartThread(gameId, bomberService); //creates an object of StartTh
+        StartThread startThread = new StartThread(gameId/*, bomberService*/); //creates an object of StartTh
         if (gameId == null) {
             log.info("Requesting GS to create a game");
             synchronized (this) {
@@ -64,18 +65,18 @@ public class MmController {
             log.info("Adding a new player to the list: name={}", name);
         } else {
             log.info("Adding a new player to the list: name={}", name);
-                ConnectionQueue.getInstance().offer(new Connection(idGenerator.getAndIncrement(), name));
-                if (ConnectionQueue.getInstance().size() == MAX_PLAYER_IN_GAME) {
-                    startThread.start(); //starts our thread
-                    log.info("gameId = {}", gameId);
-                    synchronized (this) {
-                        startThread.suspend();
-                    }
-                }
-                log.info("Responding with gameID to the player={}, gameID={}", name, gameId);
+            ConnectionQueue.getInstance().offer(new Connection(idGenerator.getAndIncrement(), name));
+            if (ConnectionQueue.getInstance().size() == MAX_PLAYER_IN_GAME) {
+                startThread.start(); //starts our thread
+                log.info("gameId = {}", gameId);
                 synchronized (this) {
-                    startThread.resume();
+                    startThread.suspend();
                 }
+            }
+            log.info("Responding with gameID to the player={}, gameID={}", name, gameId);
+            synchronized (this) {
+                startThread.resume();
+            }
         }
         return ResponseEntity.ok().body(gameId.toString());
     }
