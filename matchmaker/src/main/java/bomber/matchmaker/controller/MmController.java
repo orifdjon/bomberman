@@ -31,8 +31,8 @@ public class MmController {
     private static final AtomicInteger idGenerator = new AtomicInteger();
     public static final int MAX_PLAYER_IN_GAME = 4;
 
-    @Autowired
-    private BomberService bomberService;
+    /*@Autowired
+    private BomberService bomberService;*/
 
     /**
      * curl -X POST -i localhost:8080/matchmaker/join -d 'name=bomberman'
@@ -51,7 +51,7 @@ public class MmController {
         String[] massivStringForInputName = data.split("=");
         String name = massivStringForInputName[1]; // get player's name
 
-        StartThread startThread = new StartThread(gameId, bomberService); //creates an object of StartTh
+        StartThread startThread = new StartThread(gameId/*, bomberService*/); //creates an object of StartTh
         if (gameId == null) {
             log.info("Requesting GS to create a game");
             synchronized (this) {

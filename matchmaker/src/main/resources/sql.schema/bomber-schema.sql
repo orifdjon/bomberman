@@ -1,3 +1,4 @@
+/*
 BEGIN ;
 
 DROP SCHEMA IF EXISTS bomber CASCADE ;
@@ -23,4 +24,4 @@ CREATE TABLE bomber.user (
 );
 
 
-COMMIT;
+COMMIT;*/
